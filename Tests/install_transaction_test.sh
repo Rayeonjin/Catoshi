@@ -17,7 +17,7 @@ case "${CATOSHI_TEST_FAIL:-}:$1" in
 esac
 VALIDATOR
 chmod +x "$WORK/validate"
-source "$ROOT/installation_common.sh"
+source "$ROOT/scripts/installation_common.sh"
 assert_version() { [ "$(cat "$1/version")" = "$2" ] || { echo "Wrong version: $1" >&2; exit 1; }; }
 printf '1' > "$WORK/source.app/version"
 replace_catoshi_app "$WORK/source.app" "$WORK/Applications" "$WORK/validate" >/dev/null
@@ -33,7 +33,7 @@ assert_version "$WORK/Applications/Catoshi.app" 1
 assert_version "$WORK/Applications/Catoshi.previous.app" 2
 for failure in staged final; do
   export CATOSHI_TEST_FAIL="$failure"
-  if bash -c 'source "$1"; replace_catoshi_app "$2" "$3" "$4"' _ "$ROOT/installation_common.sh" "$WORK/source.app" "$WORK/Applications" "$WORK/validate" >/dev/null 2>&1; then
+  if bash -c 'source "$1"; replace_catoshi_app "$2" "$3" "$4"' _ "$ROOT/scripts/installation_common.sh" "$WORK/source.app" "$WORK/Applications" "$WORK/validate" >/dev/null 2>&1; then
     echo "Expected $failure failure" >&2; exit 1
   fi
   unset CATOSHI_TEST_FAIL
@@ -43,7 +43,7 @@ for failure in staged final; do
 done
 # A concurrent transaction must fail without changing either version.
 mkdir "$WORK/Applications/.catoshi-install.lock"
-if bash -c 'source "$1"; replace_catoshi_app "$2" "$3" "$4"' _ "$ROOT/installation_common.sh" "$WORK/source.app" "$WORK/Applications" "$WORK/validate" >/dev/null 2>&1; then exit 1; fi
+if bash -c 'source "$1"; replace_catoshi_app "$2" "$3" "$4"' _ "$ROOT/scripts/installation_common.sh" "$WORK/source.app" "$WORK/Applications" "$WORK/validate" >/dev/null 2>&1; then exit 1; fi
 assert_version "$WORK/Applications/Catoshi.app" 1
 assert_version "$WORK/Applications/Catoshi.previous.app" 2
 echo 'PASS: first install, update, rollback, staging failure, final-validation failure, concurrent lock.'
@@ -66,7 +66,7 @@ MOVE
 chmod +x "$WORK/bin/mv"
 for boundary in old new older backup; do
   export CATOSHI_TEST_INTERRUPT="$boundary"
-  if bash -c 'source "$1"; replace_catoshi_app "$2" "$3" "$4"' _ "$ROOT/installation_common.sh" "$WORK/source.app" "$WORK/Applications" "$WORK/validate" >/dev/null 2>&1; then
+  if bash -c 'source "$1"; replace_catoshi_app "$2" "$3" "$4"' _ "$ROOT/scripts/installation_common.sh" "$WORK/source.app" "$WORK/Applications" "$WORK/validate" >/dev/null 2>&1; then
     echo "Expected interrupt at $boundary" >&2; exit 1
   fi
   unset CATOSHI_TEST_INTERRUPT
@@ -76,7 +76,7 @@ for boundary in old new older backup; do
 done
 # Failed automatic recovery must retain the older backup and print its location.
 export CATOSHI_TEST_MOVE_FAILURE=backup
-if bash -c 'source "$1"; replace_catoshi_app "$2" "$3" "$4"' _ "$ROOT/installation_common.sh" "$WORK/source.app" "$WORK/Applications" "$WORK/validate" >"$WORK/recovery.log" 2>&1; then exit 1; fi
+if bash -c 'source "$1"; replace_catoshi_app "$2" "$3" "$4"' _ "$ROOT/scripts/installation_common.sh" "$WORK/source.app" "$WORK/Applications" "$WORK/validate" >"$WORK/recovery.log" 2>&1; then exit 1; fi
 unset CATOSHI_TEST_MOVE_FAILURE
 assert_version "$WORK/Applications/Catoshi.app" 1
 saved_backup=("$WORK/Applications"/.catoshi-stage.*/older.app)

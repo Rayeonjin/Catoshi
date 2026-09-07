@@ -5,7 +5,8 @@ FAIL=0
 warn() { printf 'WARN: %s\n' "$*"; }
 fail() { printf 'ERROR: %s\n' "$*"; FAIL=1; }
 
-ROOT="$(cd "$(dirname "$0")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 APP_VERSION="$(cat "$ROOT/VERSION" 2>/dev/null || printf 'unknown')"
 
 if [ "$(uname -s)" != "Darwin" ]; then

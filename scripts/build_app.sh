@@ -1,7 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 VERSION="$(tr -d '[:space:]' < "$ROOT/VERSION")"
 BUILD_NUMBER="${VERSION//./}"
 BUILD="$ROOT/build"
@@ -15,7 +16,7 @@ COPYRIGHT_NOTICE="© 2026 Rayeonjin. All rights reserved."
 
 usage() {
   cat <<'USAGE'
-Usage: ./build_app.sh
+Usage: bash scripts/build_app.sh
 
 Builds the single Catoshi Community app for the current Mac.
 No internal/external build profiles are used in v2.16.0 or later.
@@ -29,7 +30,7 @@ if [ "$#" -gt 0 ]; then
   esac
 fi
 
-"$ROOT/compatibility_check.sh" >/dev/null
+bash "$SCRIPT_DIR/compatibility_check.sh" >/dev/null
 
 rm -rf "$APP" "$ICONSET"
 mkdir -p "$APP/Contents/MacOS" "$RES"
@@ -108,7 +109,7 @@ plutil -lint "$APP/Contents/Info.plist" >/dev/null
 codesign --force --sign - "$APP" >/dev/null
 codesign --verify --deep --strict "$APP" >/dev/null
 
-"$ROOT/validate_app.sh" "$APP"
+bash "$SCRIPT_DIR/validate_app.sh" "$APP"
 
 printf 'Built: %s\n' "$APP"
 printf "Run: open '%s'\n" "$APP"

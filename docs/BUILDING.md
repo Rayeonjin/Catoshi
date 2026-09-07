@@ -4,6 +4,8 @@
 
 완성된 실행파일을 받는 대신, 공개 릴리스의 소스를 자신의 Mac에서 직접 빌드합니다.
 
+이 문서의 보조 명령은 최신 `main`의 `scripts/` 폴더를 기준으로 합니다. **공개된 v2.16.5 릴리스 ZIP·태그에서는 명령에서 `scripts/`를 빼고 실행합니다.** 예를 들어 `bash scripts/diagnose.sh` 대신 `bash diagnose.sh`를 사용합니다. 설치 진입점 `setup.sh`는 두 소스 모두 최상위 폴더에 있습니다.
+
 ## 준비
 
 - macOS 13 이상, Apple Silicon 또는 Intel Mac
@@ -60,7 +62,7 @@ cat VERSION
 
 ```bash
 chmod +x *.sh
-./setup.sh
+bash setup.sh
 ```
 
 스크립트는 도구·호환성을 확인하고 Swift Release 빌드, 앱 번들 생성, 로컬 ad-hoc 서명과 검증을 수행합니다. 검증된 새 앱을 같은 설치 위치의 임시 경로에 준비한 뒤 `~/Applications/Catoshi.app`으로 교체합니다. 빌드나 사전 검증이 실패하면 기존 설치 앱을 먼저 지우지 않습니다.
@@ -84,10 +86,10 @@ open ~/Applications/Catoshi.app
 
 ```bash
 chmod +x *.sh
-./setup.sh
+bash setup.sh
 ```
 
-기존 앱을 먼저 지우거나 `uninstall.sh`를 실행하지 않습니다. 설치가 성공하면 바로 이전 앱 한 개가 `~/Applications/Catoshi.previous.app`에 남습니다. 그다음 성공적인 업데이트 때 이 백업이 교체될 수 있습니다. 오래된 특정 버전을 계속 보관하려면 그 버전의 소스 ZIP과 태그를 따로 보관하세요.
+기존 앱을 먼저 지우거나 제거 스크립트를 실행하지 않습니다. 설치가 성공하면 바로 이전 앱 한 개가 `~/Applications/Catoshi.previous.app`에 남습니다. 그다음 성공적인 업데이트 때 이 백업이 교체될 수 있습니다. 오래된 특정 버전을 계속 보관하려면 그 버전의 소스 ZIP과 태그를 따로 보관하세요.
 
 설정은 `com.local.Catoshi` UserDefaults에, Activity Radar의 로컬 기록은 `~/Library/Application Support/Catoshi/`에 저장됩니다. 일반 업데이트와 복구 스크립트는 이 데이터를 지우지 않습니다.
 
@@ -95,16 +97,16 @@ chmod +x *.sh
 
 ## 이전 앱으로 복구
 
-새 버전 설치 후 문제가 있으면 **v2.16.5 이상 소스 폴더에서** 실행합니다.
+새 버전 설치 후 문제가 있으면 **v2.16.5 이상 소스 폴더에서** 실행합니다. 최신 `main`에서는 아래 명령을 사용하고, **v2.16.5 릴리스 ZIP·태그에서는 첫 줄을 `bash rollback_app.sh`로 바꿉니다.**
 
 ```bash
-./rollback_app.sh
+bash scripts/rollback_app.sh
 open ~/Applications/Catoshi.app
 ```
 
 스크립트는 보관된 `~/Applications/Catoshi.previous.app`을 검증한 뒤 현재 앱과 교환합니다. 복구 후 메뉴바와 버전을 확인하고 문제가 있었던 버전·증상을 제보하세요. 현재 앱도 이전 앱 위치에 보관되므로 필요한 경우 같은 스크립트로 다시 교환할 수 있습니다.
 
-백업이 없다면 마지막으로 정상 사용한 버전의 릴리스 소스 ZIP을 별도 폴더에 풀고 그 폴더에서 `./setup.sh`로 다시 설치합니다. 복구를 위해 환경설정이나 Activity Radar 기록을 삭제할 필요는 없습니다.
+백업이 없다면 마지막으로 정상 사용한 버전의 릴리스 소스 ZIP을 별도 폴더에 풀고 그 폴더에서 `bash setup.sh`로 다시 설치합니다. 복구를 위해 환경설정이나 Activity Radar 기록을 삭제할 필요는 없습니다.
 
 복구는 앱 실행파일의 버전을 바꿉니다. 과거 시점의 설정·데이터 스냅샷을 복원하지는 않습니다. 앞으로 데이터 형식이 바뀌는 릴리스는 해당 릴리스의 복구 주의사항을 먼저 확인하세요.
 
@@ -115,7 +117,7 @@ open ~/Applications/Catoshi.app
 ```bash
 git clone --branch v2.16.5 --depth 1 https://github.com/Rayeonjin/Catoshi.git
 cd Catoshi
-./setup.sh
+bash setup.sh
 ```
 
 다음 공개 버전으로 업데이트할 때는 먼저 로컬 변경 여부를 확인합니다.
@@ -129,7 +131,7 @@ git fetch --tags origin
 
 ```bash
 git switch --detach v2.16.5
-./setup.sh
+bash setup.sh
 ```
 
 위 태그는 문서 기준 버전 예시입니다. 업데이트 시에는 설치하려는 공개 버전의 정확한 태그로 바꾸세요. 일반 사용자 업데이트에서 `git pull`로 개발 브랜치를 무조건 따라가지 않습니다.
@@ -137,7 +139,7 @@ git switch --detach v2.16.5
 ## 앱만 빌드하기
 
 ```bash
-./build_app.sh
+bash scripts/build_app.sh
 ```
 
 `build/Catoshi.app`이 만들어지며 설치 위치의 앱은 교체하지 않습니다. 로컬 개인 사용 산출물입니다. 실행파일의 재배포는 별도 서면 허가가 필요합니다.
@@ -147,7 +149,7 @@ git switch --detach v2.16.5
 소스 폴더에서 실행합니다.
 
 ```bash
-./uninstall.sh
+bash scripts/uninstall.sh
 ```
 
 설치 앱과 자동 실행 등록을 정리합니다. 설정과 Activity Radar 기록은 기본적으로 유지합니다. 이전 버전 백업을 더 이상 보관하지 않으려면 Finder의 사용자 `Applications` 폴더에서 `Catoshi.previous.app`도 확인해 휴지통으로 옮깁니다.
@@ -157,7 +159,7 @@ git switch --detach v2.16.5
 ## 문제가 생겼다면
 
 ```bash
-./diagnose.sh
+bash scripts/diagnose.sh
 ```
 
 [문제 해결](TROUBLESHOOTING.md)을 확인한 뒤 해결되지 않으면 [GitHub Issue](https://github.com/Rayeonjin/Catoshi/issues)에 앱 버전·태그, macOS·칩, ZIP/Git 여부, 첫 설치/업데이트/복구 여부, 실행한 명령과 오류 메시지를 적어 주세요. 진단 결과에서 사용자 이름·개인 경로·계정 정보는 지웁니다.

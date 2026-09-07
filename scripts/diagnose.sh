@@ -1,12 +1,12 @@
 #!/bin/bash
 set -u
 
-ROOT="$(cd "$(dirname "$0")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP="$HOME/Applications/Catoshi.app"
 BIN="$APP/Contents/MacOS/Catoshi"
 
 echo '== Catoshi diagnostics =='
-"$ROOT/compatibility_check.sh" || true
+bash "$SCRIPT_DIR/compatibility_check.sh" || true
 
 echo
 if [ -d "$APP" ]; then
@@ -14,11 +14,11 @@ if [ -d "$APP" ]; then
   /usr/bin/defaults read "$APP/Contents/Info" CFBundleShortVersionString 2>/dev/null | sed 's/^/Version: /' || true
   file "$BIN" 2>/dev/null || true
   lipo -archs "$BIN" 2>/dev/null | sed 's/^/Architectures: /' || true
-  if "$ROOT/validate_app.sh" "$APP" >/dev/null 2>&1; then
+  if bash "$SCRIPT_DIR/validate_app.sh" "$APP" >/dev/null 2>&1; then
     echo 'Bundle validation: PASS'
   else
     echo 'Bundle validation: FAIL'
-    "$ROOT/validate_app.sh" "$APP" || true
+    bash "$SCRIPT_DIR/validate_app.sh" "$APP" || true
   fi
   if xattr -p com.apple.quarantine "$APP" >/dev/null 2>&1; then
     echo 'Quarantine attribute: present'

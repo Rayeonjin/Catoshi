@@ -12,7 +12,7 @@ Catoshi는 **비상업적 개인 사용을 위한 macOS 메뉴바 앱**입니다
 
 > A little cat that walks and rests in your Mac menu bar, with Bitcoin and Korean market data alongside it. Source-available, for non-commercial personal use only.
 
-**버전: v2.16.5** · [변경 이력](CHANGELOG.md) · [설치·업데이트·복구](docs/BUILDING.md)
+**버전: v2.16.5** · [변경 이력](docs/CHANGELOG.md) · [설치·업데이트·복구](docs/BUILDING.md)
 
 ## 주요 기능
 
@@ -28,7 +28,7 @@ Catoshi는 **비상업적 개인 사용을 위한 macOS 메뉴바 앱**입니다
 
 ## 설치
 
-완성된 `.app`이나 `.dmg` 파일을 배포하지 않습니다. **공개 릴리스의 Source code ZIP → Apple 개발 도구 → `./setup.sh`** 순서로 자신의 Mac에서 빌드합니다. 터미널이 처음이라면 [전체 설치 가이드](docs/BUILDING.md)를 따라 주세요.
+완성된 `.app`이나 `.dmg` 파일을 배포하지 않습니다. **공개 릴리스의 Source code ZIP → Apple 개발 도구 → `bash setup.sh`** 순서로 자신의 Mac에서 빌드합니다. 터미널이 처음이라면 [전체 설치 가이드](docs/BUILDING.md)를 따라 주세요.
 
 ### 1. 공개 릴리스 소스 받기
 
@@ -54,7 +54,7 @@ xcrun swift --version
 
 ```bash
 chmod +x *.sh
-./setup.sh
+bash setup.sh
 ```
 
 빌드와 검증이 끝나면 `~/Applications/Catoshi.app`에 설치됩니다. **Dock이 아닌 화면 위쪽 메뉴바**에서 Catoshi를 찾으세요.
@@ -63,14 +63,9 @@ Homebrew, 거래소 API Key, 유료 Apple Developer 계정은 필요하지 않�
 
 ## 업데이트와 이전 버전 복구
 
-새 릴리스의 **Source code ZIP**을 별도 폴더에 풀고 그 폴더에서 `./setup.sh`를 실행합니다. 기존 앱을 먼저 지우지 마세요. 새 앱은 검증을 거쳐 교체하며 이전 앱은 `~/Applications/Catoshi.previous.app`에 한 개 보관합니다. 설정과 Activity Radar 기록은 유지합니다.
+새 릴리스의 **Source code ZIP**을 별도 폴더에 풀고 그 폴더에서 `bash setup.sh`를 실행합니다. 기존 앱을 먼저 지우지 마세요. 새 앱은 검증을 거쳐 교체하며 이전 앱은 `~/Applications/Catoshi.previous.app`에 한 개 보관합니다. 설정과 Activity Radar 기록은 유지합니다.
 
-업데이트 후 실행 문제가 생기면 같은 소스 폴더에서 다음 명령으로 이전 앱을 복구할 수 있습니다.
-
-```bash
-./rollback_app.sh
-open ~/Applications/Catoshi.app
-```
+업데이트 후 실행 문제가 생기면 같은 소스 폴더에서 [이전 앱으로 복구](docs/BUILDING.md#이전-앱으로-복구) 절차를 따르세요. 릴리스 ZIP과 최신 개발 소스의 스크립트 위치를 구분해 안내합니다.
 
 복구는 앱 버전을 바꾸며 과거 시점의 설정·시장 기록을 되돌리는 기능은 아닙니다. 자세한 절차와 Git 설치 방법은 [설치·업데이트·복구 가이드](docs/BUILDING.md)를 참고하세요.
 
@@ -167,7 +162,7 @@ Catoshi는 **비상업적 개인 사용만 허용하는 소스 공개(source-ava
 - [설치·업데이트·복구](docs/BUILDING.md)
 - [문제 해결](docs/TROUBLESHOOTING.md)
 - [데이터 출처](docs/DATA_SOURCES.md)
-- [보안](SECURITY.md)
-- [기여 방법](CONTRIBUTING.md)
-- [변경 이력](CHANGELOG.md)
-- [제3자 고지](THIRD_PARTY_NOTICES.md)
+- [보안](.github/SECURITY.md)
+- [기여 방법](.github/CONTRIBUTING.md)
+- [변경 이력](docs/CHANGELOG.md)
+- [제3자 고지](docs/THIRD_PARTY_NOTICES.md)

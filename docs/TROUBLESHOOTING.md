@@ -2,6 +2,8 @@
 
 먼저 앱 버전·태그, macOS·칩, ZIP/Git 설치 여부와 막힌 단계를 확인합니다. 표준 설치·업데이트·복구는 [BUILDING.md](BUILDING.md)에 있습니다.
 
+아래 보조 명령은 최신 `main` 기준입니다. **v2.16.5 릴리스 ZIP·태그에서는 `scripts/`를 빼고 실행합니다.** 예를 들어 `bash scripts/compatibility_check.sh` 대신 `bash compatibility_check.sh`를 사용합니다. `setup.sh`는 두 소스 모두 최상위 폴더에 있습니다.
+
 ## Swift를 찾지 못하거나 `xcrun: error`가 표시됨
 
 ```bash
@@ -12,7 +14,7 @@ xcode-select --install
 
 ```bash
 xcrun swift --version
-./compatibility_check.sh
+bash scripts/compatibility_check.sh
 ```
 
 전체 Xcode나 Homebrew를 무조건 추가 설치할 필요는 없습니다. 출력된 실제 도구 경로와 오류를 확인합니다.
@@ -23,7 +25,7 @@ xcrun swift --version
 
 ```bash
 chmod +x *.sh
-./setup.sh
+bash setup.sh
 ```
 
 ## 실행했는데 Dock에 없음
@@ -34,18 +36,18 @@ Catoshi는 메뉴바 앱입니다. 화면 위쪽 메뉴바를 확인하세요. �
 open ~/Applications/Catoshi.app
 ```
 
-메뉴바가 꽉 차 있거나 노치가 있는 Mac에서는 Finder·Spotlight에서 실행 중인 Catoshi 앱을 다시 열면 패널이 표시됩니다. 메뉴바 아이콘 자체를 찾으려면 다른 메뉴바 항목을 줄여 확인합니다. 여전히 보이지 않으면 `./diagnose.sh` 결과로 프로세스와 설치 상태를 점검합니다.
+메뉴바가 꽉 차 있거나 노치가 있는 Mac에서는 Finder·Spotlight에서 실행 중인 Catoshi 앱을 다시 열면 패널이 표시됩니다. 메뉴바 아이콘 자체를 찾으려면 다른 메뉴바 항목을 줄여 확인합니다. 여전히 보이지 않으면 `bash scripts/diagnose.sh` 결과로 프로세스와 설치 상태를 점검합니다.
 
 ## 빌드·서명·아이콘 생성이 실패함
 
 ```bash
-./compatibility_check.sh
-./diagnose.sh
+bash scripts/compatibility_check.sh
+bash scripts/diagnose.sh
 ```
 
 에러가 발생한 첫 단계와 마지막 메시지를 함께 확인합니다. 새 앱은 사전 검증 후 교체하므로 빌드 실패를 해결하려고 기존 설치 앱이나 설정을 지우지 않습니다.
 
-`iconutil: Invalid Iconset`은 실제 아이콘 파일 문제 또는 제한된 실행 환경에서 생길 수 있습니다. 일반 Terminal에서 같은 릴리스 소스의 `./build_app.sh`를 실행해 재현되는지 확인합니다. 실제 파일 문제가 확인되기 전에는 아이콘 파일을 임의 삭제하거나 시스템 보안 설정을 바꾸지 않습니다. 재현 여부와 오류 전문을 Issue에 적어 주세요.
+`iconutil: Invalid Iconset`은 실제 아이콘 파일 문제 또는 제한된 실행 환경에서 생길 수 있습니다. 일반 Terminal에서 같은 릴리스 소스의 `bash scripts/build_app.sh`를 실행해 재현되는지 확인합니다. 실제 파일 문제가 확인되기 전에는 아이콘 파일을 임의 삭제하거나 시스템 보안 설정을 바꾸지 않습니다. 재현 여부와 오류 전문을 Issue에 적어 주세요.
 
 ## 업데이트 실패 또는 새 버전이 실행되지 않음
 
@@ -53,10 +55,10 @@ open ~/Applications/Catoshi.app
 - 새 버전으로 교체된 뒤 문제가 생겼다면 v2.16.5 이상 소스 폴더에서 복구합니다.
 
 ```bash
-./rollback_app.sh
+bash scripts/rollback_app.sh
 ```
 
-복구 스크립트는 보관된 이전 앱을 검증하고 현재 앱과 교환합니다. 백업이 없다는 안내가 나오면 마지막 정상 버전의 릴리스 소스 ZIP을 받아 별도 폴더에서 `./setup.sh`를 실행합니다. 자세한 절차는 [복구 가이드](BUILDING.md#이전-앱으로-복구)를 참고하세요.
+복구 스크립트는 보관된 이전 앱을 검증하고 현재 앱과 교환합니다. 백업이 없다는 안내가 나오면 마지막 정상 버전의 릴리스 소스 ZIP을 받아 별도 폴더에서 `bash setup.sh`를 실행합니다. 자세한 절차는 [복구 가이드](BUILDING.md#이전-앱으로-복구)를 참고하세요.
 
 업데이트·복구는 저장된 설정과 Activity Radar 기록을 지우지 않습니다. 버전만 복구해도 해결되지 않는 문제는 데이터를 삭제하기 전에 진단 결과를 확인합니다.
 
@@ -100,6 +102,6 @@ Activity Radar는 로컬 표본을 모아 기준선을 만듭니다. 실행 후 
 - ZIP 또는 Git, 첫 설치 또는 업데이트·복구
 - 실행한 명령과 실패 단계, 재현 순서
 - 기대한 동작·실제 동작, 오류 메시지
-- 필요한 경우 `./diagnose.sh` 결과 중 개인정보를 지운 부분
+- 필요한 경우 `bash scripts/diagnose.sh` 결과 중 개인정보를 지운 부분
 
 비밀번호, 토큰, 지갑, 거래내역, 회사 내부정보, 개인식별정보를 게시하지 않습니다. 지원은 현재 공개 버전과 표준 경로의 재현 가능한 문제를 중심으로 진행하며 응답 기한·상시 지원을 보장하지 않습니다. 매매 판단이나 회사 환경 배포는 지원 범위에 포함하지 않습니다.

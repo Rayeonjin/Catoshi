@@ -10,7 +10,7 @@ replace_catoshi_app() (
   stage=""
 
   fail() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
-  "$validator" "$source_app"
+  bash "$validator" "$source_app"
   mkdir -p "$destination_dir"
   [ ! -L "$current" ] && [ ! -L "$previous" ] || fail "App paths must not be symbolic links."
   mkdir "$lock" 2>/dev/null || fail "Another install or rollback is running ($lock)."
@@ -55,7 +55,7 @@ replace_catoshi_app() (
   trap 'exit 130' HUP INT TERM
   stage="$(mktemp -d "$destination_dir/.catoshi-stage.XXXXXX")"
   /usr/bin/ditto "$source_app" "$stage/new.app"
-  "$validator" "$stage/new.app"
+  bash "$validator" "$stage/new.app"
 
   if [ -e "$current" ]; then
     [ -d "$current" ] || fail "Existing app path is not a directory."
@@ -68,7 +68,7 @@ replace_catoshi_app() (
     mv "$current" "$stage/current.app"
   fi
   mv "$stage/new.app" "$current"
-  "$validator" "$current"
+  bash "$validator" "$current"
   if [ -f "$stage/had-current" ]; then
     # The marker precedes rotation so recovery can recognize every rename boundary.
     touch "$stage/rotating"

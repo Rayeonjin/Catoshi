@@ -1,10 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP="${1:-$HOME/Applications/Catoshi.app}"
 
-"$ROOT/validate_app.sh" "$APP"
+bash "$SCRIPT_DIR/validate_app.sh" "$APP"
 
 # Resolve directory aliases (including /tmp -> /private/tmp) without losing spaces.
 canonical_executable() {
@@ -53,7 +53,7 @@ if [ -n "$PID" ]; then
   for ((i=0; i<=15; i++)); do
     if ! pid_matches_requested_app "$PID"; then
       echo 'ERROR: The requested Catoshi process exited or changed during the 15-second launch check.' >&2
-      "$ROOT/diagnose.sh" >&2 || true
+      bash "$SCRIPT_DIR/diagnose.sh" >&2 || true
       exit 1
     fi
     if [ "$i" -lt 15 ]; then sleep 1; fi
@@ -63,5 +63,5 @@ if [ -n "$PID" ]; then
 fi
 
 echo 'ERROR: No running process matched the requested Catoshi bundle after launch.' >&2
-"$ROOT/diagnose.sh" >&2 || true
+bash "$SCRIPT_DIR/diagnose.sh" >&2 || true
 exit 1

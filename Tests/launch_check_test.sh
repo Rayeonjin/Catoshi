@@ -6,7 +6,7 @@ WORK="$(mktemp -d /private/tmp/catoshi-launch-check.XXXXXX)"
 trap 'rm -rf "$WORK"' EXIT
 WORK="$(cd -P "$WORK" && pwd -P)"
 mkdir -p "$WORK/bin" "$WORK/scripts" "$WORK/Apps With Spaces/Catoshi.app/Contents/MacOS" "$WORK/Other.app/Contents/MacOS"
-cp "$ROOT/launch_check.sh" "$WORK/scripts/launch_check.sh"
+cp "$ROOT/scripts/launch_check.sh" "$WORK/scripts/launch_check.sh"
 ln -s "$WORK/Apps With Spaces" "$WORK/alias"
 export CATOSHI_TEST_WORK="$WORK"
 export CATOSHI_TEST_EXECUTABLE="$WORK/Apps With Spaces/Catoshi.app/Contents/MacOS/Catoshi"
