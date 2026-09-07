@@ -1,0 +1,83 @@
+Catoshi Community License v1.1
+Copyright (c) 2026 Rayeonjin
+
+This is a source-available license for non-commercial personal use only.
+It is not an OSI-approved open-source license.
+
+1. Permission
+
+Subject to the conditions below, an individual may:
+
+- download and inspect the Catoshi source code;
+- build and run Catoshi solely for that individual's non-commercial personal
+  use, including personal education and personal research;
+- modify the source code solely for those permitted purposes; and
+- share the source code or modified source code without charge for the same
+  permitted purposes, provided that this license, copyright notices, and a
+  clear notice of modifications are preserved.
+
+These permissions do not include use on behalf of an employer, company, client,
+organization, or other business, even if the software is obtained without
+charge and no fee is charged to anyone for its use. Educational and research
+use is permitted only when it is an individual's own non-commercial personal
+activity, not an institutional, employment, or client activity.
+
+2. Restrictions
+
+Without prior written permission from the copyright holder, you may not:
+
+- use Catoshi for commercial purposes, paid work, business operations, company
+  internal monitoring, professional research, or client work;
+- deploy or distribute Catoshi within an organization for its activities;
+- sell Catoshi, a modified Catoshi build, or access to Catoshi;
+- distribute executable builds of Catoshi or its derivatives;
+- distribute Catoshi or a derivative as part of a paid product, subscription,
+  commercial bundle, paid service, or application-store listing;
+- use Catoshi to provide a service to third parties, whether paid or unpaid,
+  as part of a commercial or organizational activity;
+- remove or misrepresent copyright, license, attribution, or authorship notices;
+- use the Catoshi name, artwork, or branding in a way that implies an official
+  endorsement of a fork or derivative product.
+
+Voluntary donations to the original Catoshi project do not unlock features,
+change these permissions, or constitute a software license fee.
+
+3. Third-Party Data and Services
+
+This license covers only the Catoshi code and project-owned assets to the extent
+the copyright holder has rights to them. It does not grant any right to data,
+APIs, trademarks, logos, websites, or other material supplied by third parties.
+Personal use, local building, or receiving this software without charge does
+not by itself authorize collection, processing, display, redistribution, or
+sharing of third-party data. You are responsible for complying with the terms
+of each data provider and service you use.
+
+4. No Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+A PARTICULAR PURPOSE, ACCURACY, AVAILABILITY, OR NON-INFRINGEMENT. IN NO EVENT
+SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY
+ARISING FROM THE SOFTWARE OR ITS USE.
+
+5. Separate Permission
+
+Any use or distribution outside Section 1 requires separate prior written
+permission from the copyright holder. A donation, GitHub Star, Telegram
+subscription, or permission to use a third-party data service does not provide
+that permission.
+
+---
+
+한국어 요약(비공식)
+
+Catoshi는 비상업적 개인 사용만 허용하는 소스 공개 소프트웨어입니다.
+개인 스스로의 비상업적 학습·연구를 포함하여 소스를 내려받아 빌드·사용·수정하고,
+동일 조건으로 소스를 무료 공유할 수 있습니다. 라이선스·저작권 고지와 수정
+내용을 유지해야 합니다. 실행파일 재배포는 별도 서면 허가가 필요합니다.
+
+회사 내부 모니터링, 업무·고객 작업, 기관의 교육·연구, 조직 내 배포 등은
+무료로 사용하더라도 허용 범위에 포함되지 않습니다. 상업적 판매·유료 서비스
+제공 등과 마찬가지로 저작권자의 사전 서면 허가가 필요합니다. 후원은 이 범위를
+넓히거나 기능을 해제하지 않습니다. 제3자 데이터/API에 관한 권리는 포함되지
+않습니다. 해석이 필요한 경우 위 영문 조항을 기준으로 합니다.

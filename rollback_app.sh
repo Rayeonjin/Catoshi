@@ -1,0 +1,12 @@
+#!/bin/bash
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+DEST_DIR="${CATOSHI_APPLICATIONS_DIR:-$HOME/Applications}"
+if [ "$#" -gt 0 ]; then echo 'Usage: ./rollback_app.sh' >&2; exit 2; fi
+if [ ! -d "$DEST_DIR/Catoshi.previous.app" ]; then
+  echo 'ERROR: No previous version is available. Download an earlier release source and run ./setup.sh.' >&2
+  exit 1
+fi
+source "$ROOT/installation_common.sh"
+replace_catoshi_app "$DEST_DIR/Catoshi.previous.app" "$DEST_DIR" "$ROOT/validate_app.sh"
+printf "Rollback complete. Run: open '%s/Catoshi.app'\n" "$DEST_DIR"

@@ -1,0 +1,36 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# SwiftPM / build outputs
+.build/
+build/
+dist/
+DerivedData/
+.swiftpm/
+*.app
+*.dmg
+*.xcarchive
+
+# Logs / temporary files
+*.log
+*.tmp
+*.bak
+*~
+
+# Local secrets or overrides
+.env
+.env.*
+!.env.example
+*.secret
+*.secrets
+config.local.*
+
+# Runtime/local state should never be committed
+domestic_activity_history_v1.json
+
+# Catoshi workspace-private directories if the repository is ever nested
+private/
+releases/
+archive/
