@@ -2,7 +2,7 @@
 
 ![Catoshi 데모 — 가상 예시 데이터](docs/images/demo.gif)
 
-*약 12초 · 현재 네이티브 UI와 고양이 자산으로 만든 오프라인 데모입니다. 표시된 숫자는 가상 예시이며 실제 시세가 아닙니다.*
+*약 28초 · 메뉴바·시세·표시항목 설정·고양이 설정·시장·공유를 담은 네이티브 UI 데모입니다. 표시된 숫자는 가상 예시이며 실제 시세가 아닙니다.*
 
 **BTC 시세와 김치프리미엄을 가볍게 확인하는, 비상업적 개인 사용을 위한 macOS 메뉴바 앱입니다.**
 
@@ -19,7 +19,7 @@
 - Binance `BTC/USDT`, Upbit `BTC/KRW`, 김치프리미엄 메뉴바 표시
 - 24시간 변동·미니 차트, BTC.D·TOTAL3·ETH/BTC·OI·Funding 등 시장 맥락
 - 국내 5개 거래소의 거래대금 비중과 Activity Radar
-- 시장 상황에 반응하는 고양이와 5종 털색
+- 5종 고양이 털색, 산책·휴식 활동량과 동작 미리보기, 급등·급락 반응·민감도·쿨다운 설정
 - BTC·김프·시장 맥락·국내 거래소 수치를 담는 공유 카드: Feed / Story / Square, 이미지·캡션 복사, PNG 저장, macOS 시스템 공유
 - 로그인·거래소 계정·지갑 연결·사용자 API Key 입력 없음
 
@@ -31,7 +31,7 @@
 
 ### 1. 공개 릴리스 소스 받기
 
-[GitHub Releases](https://github.com/Rayeonjin/Catoshi/releases)에서 설치할 버전을 선택하고 **Source code (zip)**을 받아 압축을 풉니다. 기본 브랜치의 `Code → Download ZIP`은 개발 중 변경이 포함될 수 있으므로 릴리스 ZIP을 사용합니다.
+[GitHub Releases](https://github.com/Rayeonjin/Catoshi/releases)에서 설치할 버전을 선택하고 **Source code ZIP**을 받아 압축을 풉니다. 기본 브랜치의 `Code → Download ZIP`은 개발 중 변경이 포함될 수 있으므로 릴리스 ZIP을 사용합니다.
 
 ### 2. Apple 개발 도구 설치
 
@@ -62,7 +62,7 @@ Homebrew, 거래소 API Key, 유료 Apple Developer 계정은 필요하지 않�
 
 ## 업데이트와 이전 버전 복구
 
-새 릴리스의 **Source code (zip)**을 별도 폴더에 풀고 그 폴더에서 `./setup.sh`를 실행합니다. 기존 앱을 먼저 지우지 마세요. 새 앱은 검증을 거쳐 교체하며 이전 앱은 `~/Applications/Catoshi.previous.app`에 한 개 보관합니다. 설정과 Activity Radar 기록은 유지합니다.
+새 릴리스의 **Source code ZIP**을 별도 폴더에 풀고 그 폴더에서 `./setup.sh`를 실행합니다. 기존 앱을 먼저 지우지 마세요. 새 앱은 검증을 거쳐 교체하며 이전 앱은 `~/Applications/Catoshi.previous.app`에 한 개 보관합니다. 설정과 Activity Radar 기록은 유지합니다.
 
 업데이트 후 실행 문제가 생기면 같은 소스 폴더에서 다음 명령으로 이전 앱을 복구할 수 있습니다.
 
@@ -75,11 +75,40 @@ open ~/Applications/Catoshi.app
 
 ## 화면과 데모
 
-아래 화면은 현재 앱 컴포넌트에 가상 예시 데이터를 넣어 렌더링했습니다. 실제 시장 캡처·실제 사용자 성과가 아닙니다.
+아래 화면은 현재 앱의 실제 SwiftUI/AppKit 컴포넌트를 가상 예시 데이터로 렌더링했습니다. 설명용 제목·여백을 더했으며, 실제 시장 캡처·실제 사용자 성과가 아닙니다. 메뉴바 이미지는 Catoshi 영역 전체와 항목별 확대를 함께 보여 줍니다.
 
-![메뉴바 — 가상 예시](docs/images/menu-bar.png)
+### 메뉴바와 시세
+
+BTC 가격·24시간 변동·김치프리미엄과 미니 차트를 함께 볼 수 있습니다. **미니 차트는 기본으로 꺼져 있으며, `표시항목 설정 → 시장 항목 → 미니 차트`에서 켤 수 있습니다.** 아래는 세 항목의 차트를 모두 켠 예시입니다.
+
+![실제 메뉴바 구성과 미니 차트 확대 — 가상 예시](docs/images/menu-bar.png)
+
+메뉴바를 누르면 시세 패널이 열립니다. 상단의 **고양이 꾸미기**와 하단의 **표시항목 설정**에서 원하는 모습으로 바꿉니다.
+
+![시세 패널과 설정 진입 버튼 — 가상 예시](docs/images/price-panel.png)
+
+### 메뉴바 표시항목 설정
+
+Binance·Upbit·김치프리미엄의 가격, 24시간 변동, 미니 차트를 각각 켜고 끕니다. 색상 표현과 Catoshi 표시도 선택할 수 있습니다. 설정 안의 실시간 미리보기는 가로로 스크롤할 수 있습니다.
+
+![메뉴바 표시항목 설정 — 가상 예시](docs/images/display-settings.png)
+
+### 고양이 꾸미기와 시장 반응
+
+다섯 가지 털색을 고르고, 고양이 동작·랜덤 일상·활동량을 설정합니다. 걷기·식빵·그루밍·낮잠·우다다 등 동작을 미리 볼 수 있습니다.
+
+![고양이 털색 5종과 일상 행동·동작 미리보기 설정](docs/images/cat-settings.png)
+
+**급등·급락 반응 설정**을 펼치면 BTC 5분 변동에 대한 반응, 급락 반응, 민감도와 쿨다운을 조절할 수 있습니다.
+
+![고양이 시장 반응·민감도·쿨다운을 펼친 설정 — 가상 예시](docs/images/cat-reactions.png)
+
+### 시장·국내 거래소·공유 카드
+
 ![시장 — 가상 예시](docs/images/market.png)
+
 ![국내 거래소 — 가상 예시](docs/images/kr-exchanges.png)
+
 ![시장 공유 카드 — 가상 예시](docs/images/share-card.png)
 
 데이터 이용 조건은 [데이터 출처](docs/DATA_SOURCES.md)에 정리합니다. 앱 화면의 시장 수치를 외부에 다시 게시할 권리가 이 소프트웨어 라이선스만으로 부여되지는 않습니다.
