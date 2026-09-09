@@ -133,7 +133,7 @@ Binance·Upbit·김치프리미엄의 가격, 24시간 변동, 미니 차트를 
 
 ## 개발 응원하기
 
-Catoshi를 즐겁게 사용하고 있다면 **[Fairy에서 개발 응원하기](https://fairy.hada.io/@catoshi)**로 자발적인 후원을 보내실 수 있습니다.
+Catoshi를 즐겁게 사용하고 있다면 **[Fairy에서 개발 응원하기](https://fairy.hada.io/@catoshi)** 로 자발적인 후원을 보내실 수 있습니다.
 
 다른 후원 방법: [Buy Me a Coffee](https://buymeacoffee.com/rayeonjin) · [Ko-fi](https://ko-fi.com/rayeonjin)
 
