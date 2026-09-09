@@ -133,7 +133,11 @@ Binance·Upbit·김치프리미엄의 가격, 24시간 변동, 미니 차트를 
 
 ## 개발 응원하기
 
-자발적으로 개발을 응원하려면 [Buy Me a Coffee](https://buymeacoffee.com/rayeonjin) 또는 [Ko-fi](https://ko-fi.com/rayeonjin)를 이용할 수 있습니다. 후원은 사용권·기능 제공의 대가가 아니며 기능·업데이트·지원 우선순위에 차이가 없습니다.
+Catoshi를 즐겁게 사용하고 있다면 **[Fairy에서 개발 응원하기](https://fairy.hada.io/@catoshi)**로 자발적인 후원을 보내실 수 있습니다.
+
+다른 후원 방법: [Buy Me a Coffee](https://buymeacoffee.com/rayeonjin) · [Ko-fi](https://ko-fi.com/rayeonjin)
+
+후원은 사용권·기능 제공의 대가가 아니며 기능·업데이트·지원 우선순위에 차이가 없습니다.
 
 후원 안내는 README와 Telegram에만 두며 앱과 공유 이미지·캡션에는 넣지 않습니다.
 
