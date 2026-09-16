@@ -2,7 +2,7 @@
 
 먼저 앱 버전·태그, macOS·칩, ZIP/Git 설치 여부와 막힌 단계를 확인합니다. 표준 설치·업데이트·복구는 [BUILDING.md](BUILDING.md)에 있습니다.
 
-아래 보조 명령은 최신 `main` 기준입니다. **v2.16.5 릴리스 ZIP·태그에서는 `scripts/`를 빼고 실행합니다.** 예를 들어 `bash scripts/compatibility_check.sh` 대신 `bash compatibility_check.sh`를 사용합니다. `setup.sh`는 두 소스 모두 최상위 폴더에 있습니다.
+아래 보조 명령은 v2.16.6 및 최신 `main` 기준입니다. **v2.16.5 릴리스 ZIP·태그에서는 `scripts/`를 빼고 실행합니다.** 예를 들어 `bash scripts/compatibility_check.sh` 대신 `bash compatibility_check.sh`를 사용합니다. `setup.sh`는 두 소스 모두 최상위 폴더에 있습니다.
 
 ## Swift를 찾지 못하거나 `xcrun: error`가 표시됨
 
