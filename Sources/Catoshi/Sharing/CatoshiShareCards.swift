@@ -168,7 +168,7 @@ enum CatoshiShareMetadata {
         switch section {
         case .prices: return "Binance · Upbit | Catoshi"
         case .market: return "Powered by CoinGecko · coingecko.com | Binance · DeFiLlama · Farside Investors"
-        case .domestic: return "Upbit · Bithumb · Coinone · Korbit · GOPAX | Catoshi"
+        case .domestic: return "Upbit · Bithumb · Coinone · Digital X · GOPAX | Catoshi"
         case .info: return "Catoshi · macOS · Noncommercial personal use only"
         }
     }
