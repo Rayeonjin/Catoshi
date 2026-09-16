@@ -12,7 +12,7 @@ Catoshi는 **비상업적 개인 사용을 위한 macOS 메뉴바 앱**입니다
 
 > A little cat that walks and rests in your Mac menu bar, with Bitcoin and Korean market data alongside it. Source-available, for non-commercial personal use only.
 
-**버전: v2.16.5** · [변경 이력](docs/CHANGELOG.md) · [설치·업데이트·복구](docs/BUILDING.md)
+**버전: v2.16.6** · [변경 이력](docs/CHANGELOG.md) · [설치·업데이트·복구](docs/BUILDING.md)
 
 ## 주요 기능
 
