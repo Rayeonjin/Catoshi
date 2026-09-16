@@ -350,6 +350,16 @@ struct CatoshiAboutView: View {
 
             GroupBox(language.pick("프로젝트", "Project")) {
                 VStack(alignment: .leading, spacing: 8) {
+                    Text(language.pick("업데이트 안내", "Updates"))
+                        .font(.system(size: CatoshiType.rowTitle, weight: .semibold))
+                    Text(language.pick(
+                        "Catoshi는 새 버전을 자동으로 확인하거나 설치하지 않습니다. 보안·버그 수정과 거래소 API 변경 사항을 놓치지 않도록 GitHub 릴리스 또는 텔레그램 공지에서 새 버전 여부를 주기적으로 확인해 주세요. 업데이트는 새 버전의 소스를 내려받아 직접 빌드하여 적용할 수 있습니다.",
+                        "Catoshi does not automatically check for or install new versions. Check GitHub Releases or Telegram announcements periodically for security fixes, bug fixes and exchange API changes. To update, download the new version’s source and build it on your Mac."
+                    ))
+                        .font(.system(size: CatoshiType.body))
+                        .catoshiText(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+
                     AboutProjectLinkRow(
                         icon: "chevron.left.forwardslash.chevron.right",
                         title: "GitHub",
