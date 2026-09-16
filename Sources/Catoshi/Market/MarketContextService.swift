@@ -520,7 +520,7 @@ final class MarketContextService {
     }
 
     private func fetchKorbitVolume() async throws -> Double {
-        let url = URL(string: "https://api.korbit.co.kr/v2/tickers")!
+        let url = URL(string: "https://api.digitalx.miraeasset.com/v2/tickers")!
         let (data, response) = try await session.data(from: url)
         try validateDomestic(response, data: data)
         if responseIndicatesMaintenance(data) { throw MarketContextError.maintenance }

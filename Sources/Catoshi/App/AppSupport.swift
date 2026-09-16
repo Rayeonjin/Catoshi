@@ -399,7 +399,7 @@ struct CatoshiAboutView: View {
                     )
                     AboutDataSourceRow(
                         provider: language.pick("국내 거래소", "KR exchanges"),
-                        detail: language.pick("Upbit·Bithumb·Coinone·Korbit·GOPAX 공개 API · 24시간 원화 거래대금 및 활동 레이더 입력값", "Upbit, Bithumb, Coinone, Korbit and GOPAX public APIs · 24h KRW trading value and activity-radar inputs")
+                        detail: language.pick("Upbit·Bithumb·Coinone·Digital X·GOPAX 공개 API · 24시간 원화 거래대금 및 활동 레이더 입력값", "Upbit, Bithumb, Coinone, Digital X and GOPAX public APIs · 24h KRW trading value and activity-radar inputs")
                     )
                     Text(language.pick(
                         "공개 엔드포인트와 제공 범위는 각 데이터 제공자의 정책에 따라 변경될 수 있습니다.",

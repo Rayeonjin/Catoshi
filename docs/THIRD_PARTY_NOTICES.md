@@ -6,7 +6,7 @@
 
 [**Powered by CoinGecko**](https://www.coingecko.com/) — CoinGecko API는 CoinGecko의 자산이며 [CoinGecko API 약관](https://www.coingecko.com/en/api_terms)이 적용됩니다. 이 표시는 후원·광고·제휴 안내가 아닌 데이터 출처 고지입니다.
 
-Catoshi는 Bitcoin Core, Binance, Upbit, Bithumb, Coinone, Korbit, GOPAX, CoinGecko, DeFiLlama, Farside Investors 또는 표시되는 다른 서비스와 제휴하거나 공식적으로 승인된 제품이 아닙니다. 회사명·서비스명·상표는 각 권리자의 자산입니다.
+Catoshi는 Bitcoin Core, Binance, Upbit, Bithumb, Coinone, Digital X(디지털엑스, 구 코빗), GOPAX, CoinGecko, DeFiLlama, Farside Investors 또는 표시되는 다른 서비스와 제휴하거나 공식적으로 승인된 제품이 아닙니다. 회사명·서비스명·상표는 각 권리자의 자산입니다.
 
 시장 데이터와 계산 결과에는 지연·누락·오류가 있을 수 있습니다. CoinGecko 등 제공자는 Catoshi의 해석이나 투자 결정을 보증하지 않습니다. 데이터 제공자의 권리를 침해하는 재사용, 접근 제한 우회, 허락 없는 재배포는 허용되지 않습니다. 앱의 공유 카드는 시장 수치·가공 지표를 제공하며 출처·관측 시각·추정 여부를 함께 표시합니다. 특정 개인 이미지 공유의 이용 조건은 제공자별로 확인하며, 약관 적용 범위가 미확인이라는 이유만으로 모든 공유를 금지하지 않습니다.
 

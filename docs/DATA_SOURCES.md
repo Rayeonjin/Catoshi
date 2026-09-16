@@ -20,7 +20,7 @@ Catoshi는 비상업적 개인 사용 전용 앱입니다. 로그인이나 개�
 | Upbit | BTC/KRW·USDT/KRW, 캔들, KRW 거래대금, 김치프리미엄 입력값 | 개발자센터에 게시된 Open API 약관 제6조의 유상 프로그램 양도·배포 제한 확인. 공개 시세의 계산/이용 범위는 별도 확인 필요 | 계산된 김치프리미엄·거래대금 이미지의 구체적 적용 조건 추가 확인 | [Open API 약관 원문 링크](https://upbit.com/open_api_agreement), [약관 본문이 함께 게시된 공식 개발자센터](https://docs.upbit.com/kr/page/upbit_developer_sdk_license) |
 | Bithumb | 24h KRW 거래대금·Activity Radar | 공식 Public API 문서는 확인. 현행 약관 페이지에서 본문을 추출하지 못했으므로 약관 검토 완료로 표시하지 않음 | 현행 재공유 조건 미확인. 본문 조회 실패가 금지를 의미하지 않음 | [공식 API 안내](https://content.bithumb.com/apidocs/intro.html), [현행 API 약관 페이지](https://www.bithumb.com/member_operation/info_agree?key=info_api) |
 | Coinone | 24h KRW 거래대금·Activity Radar | API 약관 제5조는 시세 조회를 포함. 제9조의 무단 사용·변경 제한이 있어 집계·차분 계산과 공개 API 적용 범위 확인 필요 | 제6조 제1항 제4호의 데이터 타인 양도 제한은 확인. 개인 공유 이미지·가공 지표가 해당하는 범위는 추가 확인 | [API 약관, 2026-05-07 시행](https://coinone.co.kr/terms/api) |
-| Korbit | 24h KRW 거래대금·Activity Radar | 공식 문서에서 Public 시세 API의 무인증 접근을 확인. 가공/소스 배포에 따른 데이터 권한은 별도 확인 필요 | 명시적 재공유 조건 미확인. 개인 이미지 공유의 적용 범위 추가 확인 | [공식 API 문서](https://docs.korbit.co.kr/) |
+| Digital X(디지털엑스, 구 코빗) | 24h KRW 거래대금·Activity Radar | 공식 문서에서 Public 시세 API의 무인증 접근을 확인. 가공/소스 배포에 따른 데이터 권한은 별도 확인 필요 | 명시적 재공유 조건 미확인. 개인 이미지 공유의 적용 범위 추가 확인 | [공식 API 문서](https://docs.digitalx.miraeasset.com/) |
 | GOPAX | 24h KRW 거래대금·Activity Radar | 공식 Public API의 티커·24h 통계 경로 확인. 가공/소스 배포에 따른 데이터 권한은 별도 확인 필요 | 명시적 재공유 조건 미확인. 개인 이미지 공유의 적용 범위 추가 확인 | [공식 REST API 문서](https://gopax.github.io/API/), [공식 저장소](https://github.com/gopax/GopaxAPI) |
 | CoinGecko | BTC.D·USDT.D·TOTAL3* 및 변화량 입력값 | API 약관의 제한적 사용 조건과 별도 플랜/계약 조건 적용. 필수 출처 표시를 시장·정보 화면에 반영. TOTAL3* 등 가공·캐시 및 무키 접근 범위는 추가 확인 대상 | 필수 출처·사이트 주소를 시장 카드와 캡션에 반영. 가공값 이미지 공유의 구체적 허용 범위는 추가 확인 | [API 약관, 2025-09-05 버전](https://www.coingecko.com/en/api_terms), [공식 FAQ](https://www.coingecko.com/en/faq) |
 | DeFiLlama | USDT+USDC 공급량·7일 변화 | 약관 제7조에 비상업적 개인 접근·이용 범위, 제8조에 공식 Public API 및 복제·수정 제한이 함께 있음. 집계·변화량 계산의 적용 범위 추가 확인 | 제8조의 허락 없는 데이터 재게시 제한은 확인. 카드의 계산·해석과 원 데이터 재게시의 적용 범위 추가 확인 | [이용약관, 2025-06-24 시행](https://defillama.com/terms) |
@@ -48,3 +48,10 @@ PNG의 사이트 주소는 이미지 자체에서 클릭되는 링크가 아닙�
 시장 데이터 요청은 사용자의 Mac에서 각 제공자로 직접 전송됩니다. 제공자는 요청 처리 과정에서 IP 주소 등 일반 접속 정보를 받을 수 있으며 자신의 개인정보처리방침을 적용합니다. Catoshi는 거래소 계정, API Key, 지갑 키를 요구하지 않고 별도 사용자 계정 서버나 시장 데이터 중계 서버를 운영하지 않습니다.
 
 이 문서의 확인일 이후 조건은 달라질 수 있습니다. 제공자 추가·유료화·후원 방식 변경·데이터 공유 범위 확대 시, 적용 약관과 허락 범위를 다시 확인합니다.
+
+### Digital X 명칭·API 변경 확인 (2026-09-16)
+
+- 공식 거래소 홈페이지: https://digitalx.miraeasset.com/ (기존 코빗 홈페이지에서 연결)
+- 공식 API 문서: https://docs.digitalx.miraeasset.com/
+- 공개 티커 API: `https://api.digitalx.miraeasset.com/v2/tickers`
+- 새 API의 HTTP 200 및 `success`, `data`, `symbol`, `quoteVolume` 응답을 확인했습니다. 기존 원화 거래대금 파서를 유지하며, Activity Radar 저장 키 `korbit`도 이전 기록 호환성을 위해 유지합니다.

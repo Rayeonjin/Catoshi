@@ -5,6 +5,7 @@ enum DomesticExchange: String, CaseIterable, Identifiable {
     case upbit
     case bithumb
     case coinone
+    // Preserve the persisted Activity Radar key across the Digital X rebrand.
     case korbit
     case gopax
 
@@ -15,7 +16,7 @@ enum DomesticExchange: String, CaseIterable, Identifiable {
         case .upbit: return "Upbit"
         case .bithumb: return "Bithumb"
         case .coinone: return "Coinone"
-        case .korbit: return "Korbit"
+        case .korbit: return "Digital X"
         case .gopax: return "GOPAX"
         }
     }
