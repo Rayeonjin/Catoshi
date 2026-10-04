@@ -131,6 +131,14 @@ private func makeMarketReadKorean(
         tone = .constructive
         badges.append("BTC 주도")
         aligned = 2 + ((total3 == .flat || total3 == .down) ? 1 : 0) + ((eth == .flat || eth == .down) ? 1 : 0)
+    } else if (btc == .up || btc == .flat), usdt == .up, total3 == .down {
+        title = "알트 약세·방어 우위"
+        summary = "USDT 비중이 높아지고 BTC·ETH 제외 시총이 줄고 있습니다. BTC 비중은 유지되거나 높아져 알트보다 상대적으로 강하지만, 시장 전반의 위험선호가 회복됐다는 뜻은 아닙니다."
+        decision = "BTC 비중 상승만으로 강세를 판단하지 말고, 알트 시장 규모의 축소와 스테이블 비중 확대를 함께 확인합니다."
+        reversal = "USDT.D가 하락하고 TOTAL3가 회복되면 방어적 흐름이 완화되는지 다시 봅니다."
+        tone = .caution
+        badges.append("방어 우위")
+        aligned = 2 + (btc == .up ? 1 : 0) + (eth == .down ? 1 : 0)
     } else if btc == .down, usdt == .up {
         title = "위험회피·자금 이탈"
         summary = "BTC 비중은 낮아지는데 USDT 비중은 높아지고 있습니다. 건강한 알트 순환보다는 코인 시장의 위험 노출을 줄이고 스테이블코인 비중을 높이는 방어적 흐름에 더 가깝습니다."
@@ -486,6 +494,14 @@ private func makeMarketReadEnglish(
         tone = .constructive
         badges.append("BTC-led")
         aligned = 2 + ((total3 == .flat || total3 == .down) ? 1 : 0) + ((eth == .flat || eth == .down) ? 1 : 0)
+    } else if (btc == .up || btc == .flat), usdt == .up, total3 == .down {
+        title = "Alt weakness / defensive positioning"
+        summary = "USDT dominance is rising while market cap outside BTC and ETH is shrinking. BTC share is steady or higher, showing relative resilience against alts, but this does not establish broad risk-on demand."
+        decision = "Read BTC dominance alongside alt-market contraction and the rising stablecoin share rather than treating BTC's relative strength as broad market strength."
+        reversal = "If USDT dominance turns lower and TOTAL3 recovers, re-check whether defensive positioning is easing."
+        tone = .caution
+        badges.append("Defensive positioning")
+        aligned = 2 + (btc == .up ? 1 : 0) + (eth == .down ? 1 : 0)
     } else if btc == .down, usdt == .up {
         title = "Risk-off / capital retreat"
         summary = "BTC share is falling while USDT share is rising. That looks more like reduced crypto risk exposure and defensive stablecoin positioning than healthy altcoin rotation."

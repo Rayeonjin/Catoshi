@@ -66,6 +66,19 @@ final class MarketDataFreshnessTests: XCTestCase {
         XCTAssertTrue(read.dimensions.allSatisfy { $0.signal == "Waiting" })
     }
 
+    func testDefensiveAltContractionIsNotLabeledMixed() {
+        let macro = MacroMarketSnapshot(btcDominance: 59, btcDominanceChange24hPP: 1.85,
+            usdtDominance: 6.3, usdtDominanceChange24hPP: 0.17, total3USD: 850_000_000_000,
+            total3Change24h: -9.7, updatedAt: now)
+        for (language, expected) in [(AppLanguage.korean, "알트 약세·방어 우위"),
+                                     (.english, "Alt weakness / defensive positioning")] {
+            let read = makeMarketRead(macro: macro, fast: nil, investor: nil,
+                freshness: MarketContextFreshness(), premium: nil, btcChange24h: nil,
+                btcChange5m: nil, language: language, now: now)
+            XCTAssertEqual(read.title, expected)
+        }
+    }
+
     func testFreshFetchCannotMakeOldETFReportCurrent() {
         let reportDate = now.addingTimeInterval(-7 * 24 * 60 * 60)
         let inputs = MarketInterpretationInputs(macro: Fixtures.macro(now), fast: Fixtures.fast(now),
