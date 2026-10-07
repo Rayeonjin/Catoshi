@@ -12,16 +12,14 @@ struct QuoteRow: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
-            Link(destination: destination) {
-                Text(title)
-                    .font(.system(size: CatoshiType.body, weight: .medium))
-                    .underline()
-                    .foregroundStyle(Color.accentColor)
-                    .frame(width: 90, alignment: .leading)
-            }
-            .buttonStyle(.plain)
-            .help(language.pick("\(title) BTC 거래 화면 열기", "Open \(title) BTC market"))
-            .accessibilityLabel(language.pick("\(title) BTC 거래 화면 열기", "Open \(title) BTC market"))
+            ExchangeNameLink(
+                title: title,
+                destination: destination,
+                fontSize: CatoshiType.body,
+                tone: .secondary,
+                hint: language.pick("\(title) BTC 거래 화면 열기", "Open \(title) BTC market")
+            )
+            .frame(width: 90, alignment: .leading)
 
             Text(price)
                 .font(.system(size: CatoshiType.price, weight: .semibold, design: .default))
@@ -151,4 +149,3 @@ struct ConnectionDot: View {
         }
     }
 }
-

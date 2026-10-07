@@ -1348,16 +1348,13 @@ private struct DomesticActivityRow: View {
                     Circle()
                         .fill(exchangeMarkerColor)
                         .frame(width: 7, height: 7)
-                    Link(destination: ExchangeLinks.website(for: exchange)) {
-                        Text(exchange.label)
-                            .font(.system(size: CatoshiType.table, weight: .medium))
-                            .underline()
-                            .foregroundStyle(Color.accentColor)
-                            .lineLimit(1)
-                    }
-                    .buttonStyle(.plain)
-                    .help(language.pick("\(exchange.label) 공식 사이트 열기", "Open \(exchange.label) website"))
-                    .accessibilityLabel(language.pick("\(exchange.label) 공식 사이트 열기", "Open \(exchange.label) website"))
+                    ExchangeNameLink(
+                        title: exchange.label,
+                        destination: ExchangeLinks.website(for: exchange),
+                        fontSize: CatoshiType.table,
+                        tone: .primary,
+                        hint: language.pick("\(exchange.label) 공식 사이트 열기", "Open \(exchange.label) website")
+                    )
                 }
                 .frame(width: DomesticActivityTableMetrics.exchange, alignment: .leading)
 
@@ -1438,4 +1435,3 @@ private struct DomesticActivityRow: View {
         }
     }
 }
-
