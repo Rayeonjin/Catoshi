@@ -174,7 +174,7 @@ private struct MenuBarDisplayPreview: View {
                         if let image = CatoshiAssets.sprite(named: "idle", coat: model.catoshiCoat) {
                             Image(nsImage: image)
                                 .resizable()
-                                .interpolation(.none)
+                                .interpolation(model.catoshiCoat == .realistic ? .high : .none)
                                 .scaledToFit()
                                 .frame(width: 60, height: 20)
                         }
