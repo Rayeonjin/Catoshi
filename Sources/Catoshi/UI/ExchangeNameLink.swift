@@ -12,7 +12,7 @@ struct ExchangeNameLink: View {
     var body: some View {
         Link(destination: destination) {
             Text(title)
-                .font(.system(size: fontSize, weight: isHovered ? .semibold : .medium))
+                .font(.system(size: isHovered ? fontSize + 2 : fontSize, weight: isHovered ? .bold : .medium))
                 .catoshiText(tone)
                 .lineLimit(1)
         }
