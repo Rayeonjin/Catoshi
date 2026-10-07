@@ -34,6 +34,7 @@ enum CatoshiCoat: String, CaseIterable, Identifiable {
     case gray
     case tuxedo
     case cream
+    case realistic
 
     var id: String { rawValue }
 
@@ -44,6 +45,7 @@ enum CatoshiCoat: String, CaseIterable, Identifiable {
         case .gray: return language.pick("회색", "Gray")
         case .tuxedo: return language.pick("턱시도", "Tuxedo")
         case .cream: return language.pick("크림", "Cream")
+        case .realistic: return language.pick("실사풍", "Realistic")
         }
     }
 

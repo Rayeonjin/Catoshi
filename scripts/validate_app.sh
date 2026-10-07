@@ -31,7 +31,7 @@ case " $ARCHS " in
   *) fail "Built binary architecture '$ARCHS' does not include host architecture '$HOST_ARCH'." ;;
 esac
 
-for atlas in calico cheese gray tuxedo cream; do
+for atlas in calico cheese gray tuxedo cream realistic; do
   ATLAS="$APP/Contents/Resources/CatoshiAtlas_${atlas}.png"
   [ -f "$ATLAS" ] || fail "Missing sprite atlas: $atlas"
   WIDTH="$(sips -g pixelWidth "$ATLAS" 2>/dev/null | awk '/pixelWidth/ {print $2}')"

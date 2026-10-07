@@ -8,8 +8,8 @@ struct CatoshiSettingsView: View {
     @State private var marketReactionExpanded = false
 
     private let previewColumns = Array(
-        repeating: GridItem(.flexible(minimum: 72), spacing: 8),
-        count: 5
+        repeating: GridItem(.flexible(minimum: 70), spacing: 6),
+        count: 6
     )
 
     var body: some View {
@@ -262,7 +262,7 @@ private struct CatoshiStateSummary: View {
                 if let image = CatoshiAssets.sprite(named: motion.state.representativeFrameName, coat: coat) {
                     Image(nsImage: image)
                         .resizable()
-                        .interpolation(.none)
+                        .interpolation(coat == .realistic ? .high : .none)
                         .scaledToFit()
                         .frame(width: 32, height: 22)
                 }
@@ -294,7 +294,7 @@ struct CatoshiCoatButton: View {
                     if let image = CatoshiAssets.sprite(named: "idle", coat: coat) {
                         Image(nsImage: image)
                             .resizable()
-                            .interpolation(.none)
+                            .interpolation(coat == .realistic ? .high : .none)
                             .scaledToFit()
                     } else {
                         Text("🐈")

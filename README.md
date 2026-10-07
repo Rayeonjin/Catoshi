@@ -12,12 +12,12 @@ Catoshi는 **비상업적 개인 사용을 위한 macOS 메뉴바 앱**입니다
 
 > A little cat that walks and rests in your Mac menu bar, with Bitcoin and Korean market data alongside it. Source-available, for non-commercial personal use only.
 
-**버전: v2.16.11** · [변경 이력](docs/CHANGELOG.md) · [설치·업데이트·복구](docs/BUILDING.md)
+**버전: v2.16.12** · [변경 이력](docs/CHANGELOG.md) · [설치·업데이트·복구](docs/BUILDING.md)
 
 ## 주요 기능
 
 - 메뉴바에서 걷고, 쉬고, 식빵을 굽는 고양이: 산책·그루밍·낮잠 등 일상 행동
-- 5종 고양이 털색, 산책·휴식 활동량과 동작 미리보기, 급등·급락 반응·민감도·쿨다운 설정
+- 만화풍 고양이 5종과 실사풍 삼색 고양이 1종, 산책·휴식 활동량과 동작 미리보기, 급등·급락 반응·민감도·쿨다운 설정
 - Binance `BTC/USDT`, Upbit `BTC/KRW`, 김치프리미엄 메뉴바 표시
 - 24시간 변동·미니 차트, BTC.D·TOTAL3·ETH/BTC·OI·Funding 등 시장 맥락
 - 국내 5개 거래소의 거래대금 비중과 Activity Radar
@@ -83,9 +83,11 @@ Homebrew, 거래소 API Key, 유료 Apple Developer 계정은 필요하지 않�
 
 ### 내 고양이 꾸미기와 시장 반응
 
-메뉴바를 눌러 시세 패널을 열고 상단의 **고양이 꾸미기**로 들어갑니다. 다섯 가지 털색을 고르고, 고양이 동작·랜덤 일상·활동량을 설정합니다. 걷기·식빵·그루밍·낮잠·우다다 등 동작을 미리 볼 수 있습니다.
+메뉴바를 눌러 시세 패널을 열고 상단의 **고양이 꾸미기**로 들어갑니다. 만화풍 털색 다섯 가지와 **실사풍** 삼색 고양이 중에서 고르고, 고양이 동작·랜덤 일상·활동량을 설정합니다. 걷기·식빵·그루밍·낮잠·우다다 등 동작을 미리 볼 수 있습니다. 실사풍은 사진처럼 보이도록 생성한 이미지이며 실제 반려묘의 사진은 아닙니다.
 
-![고양이 털색 5종과 일상 행동·동작 미리보기 설정](docs/images/cat-settings.png)
+[실사풍 포즈 원본과 아틀라스 재생성 방법](artwork/realistic/README.md)
+
+![만화풍 고양이 5종과 실사풍 고양이, 일상 행동·동작 미리보기 설정](docs/images/cat-settings.png)
 
 **급등·급락 반응 설정**을 펼치면 BTC 5분 변동에 대한 반응, 급락 반응, 민감도와 쿨다운을 조절할 수 있습니다.
 

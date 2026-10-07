@@ -593,7 +593,7 @@ enum CatoshiShareCardRenderer {
         canvas.text("Catoshi", top: 64, x: 72, width: 690, height: 72, font: .systemFont(ofSize: 54, weight: .bold), color: primary)
         canvas.text(section.title(language), top: 126, x: 74, width: 650, height: 48, font: .systemFont(ofSize: 29, weight: .semibold), color: secondary)
 
-        let coats = CatoshiCoat.allCases
+        let coats = CatoshiCoat.allCases.filter { $0 != .realistic }
         let frames = ["idle", "sit", "loaf", "stretch", "happy", "groom"]
         if let coat = coats.randomElement(),
            let frame = frames.randomElement(),
