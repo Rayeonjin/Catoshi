@@ -12,7 +12,7 @@ Catoshi는 **비상업적 개인 사용을 위한 macOS 메뉴바 앱**입니다
 
 > A little cat that walks and rests in your Mac menu bar, with Bitcoin and Korean market data alongside it. Source-available, for non-commercial personal use only.
 
-**버전: v2.16.8** · [변경 이력](docs/CHANGELOG.md) · [설치·업데이트·복구](docs/BUILDING.md)
+**버전: v2.16.9** · [변경 이력](docs/CHANGELOG.md) · [설치·업데이트·복구](docs/BUILDING.md)
 
 ## 주요 기능
 
@@ -108,6 +108,8 @@ Binance·Upbit·김치프리미엄의 가격, 24시간 변동, 미니 차트를 
 ![메뉴바 표시항목 설정 — 가상 예시](docs/images/display-settings.png)
 
 ### 시장·국내 거래소·공유 카드
+
+시세 탭에서 Binance·Upbit 이름을 누르면 각 BTC 거래 화면이 열립니다. 국내 거래소 탭의 거래소명을 누르면 해당 거래소의 공식 사이트가 열립니다.
 
 ![시장 — 가상 예시](docs/images/market.png)
 

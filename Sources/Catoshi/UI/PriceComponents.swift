@@ -4,16 +4,24 @@ import SwiftUI
 
 struct QuoteRow: View {
     let title: String
+    let destination: URL
+    let language: AppLanguage
     let price: String
     let change: Double?
     let palette: DisplayPalette
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
-            Text(title)
-                .font(.system(size: CatoshiType.body, weight: .medium))
-                .catoshiText(.secondary)
-                .frame(width: 90, alignment: .leading)
+            Link(destination: destination) {
+                Text(title)
+                    .font(.system(size: CatoshiType.body, weight: .medium))
+                    .underline()
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 90, alignment: .leading)
+            }
+            .buttonStyle(.plain)
+            .help(language.pick("\(title) BTC 거래 화면 열기", "Open \(title) BTC market"))
+            .accessibilityLabel(language.pick("\(title) BTC 거래 화면 열기", "Open \(title) BTC market"))
 
             Text(price)
                 .font(.system(size: CatoshiType.price, weight: .semibold, design: .default))

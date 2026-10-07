@@ -304,6 +304,8 @@ private struct PriceOverviewSection: View {
         VStack(alignment: .leading, spacing: 10) {
             QuoteRow(
                 title: "Binance",
+                destination: ExchangeLinks.binanceBTC,
+                language: model.appLanguage,
                 price: model.binanceBTC.map { formatUSD($0.price) } ?? "$---",
                 change: model.binanceBTC?.change24h,
                 palette: model.displayPalette
@@ -311,6 +313,8 @@ private struct PriceOverviewSection: View {
             Divider()
             QuoteRow(
                 title: "Upbit",
+                destination: ExchangeLinks.upbitBTC,
+                language: model.appLanguage,
                 price: model.upbitBTC.map { formatKRW($0.price) } ?? "₩---",
                 change: model.upbitBTC?.change24h,
                 palette: model.displayPalette

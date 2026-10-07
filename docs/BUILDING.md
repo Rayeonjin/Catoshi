@@ -21,7 +21,7 @@
 3. Assets의 **Source code (zip)**을 받습니다.
 4. ZIP을 더블클릭해 압축을 풉니다.
 
-폴더 이름은 `Catoshi-2.16.8`와 비슷하게 표시될 수 있습니다. 선택한 태그와 폴더 안의 `VERSION` 파일이 같은 버전인지 확인합니다. `Code → Download ZIP`은 기본 브랜치의 최신 개발 소스이므로 재현 가능한 일반 설치에는 릴리스 ZIP을 사용합니다.
+폴더 이름은 `Catoshi-2.16.9`와 비슷하게 표시될 수 있습니다. 선택한 태그와 폴더 안의 `VERSION` 파일이 같은 버전인지 확인합니다. `Code → Download ZIP`은 기본 브랜치의 최신 개발 소스이므로 재현 가능한 일반 설치에는 릴리스 ZIP을 사용합니다.
 
 ## 2. 터미널 열기
 
@@ -48,7 +48,7 @@ Swift 버전이 표시되면 다음으로 진행합니다. 보통 전체 Xcode �
 예:
 
 ```bash
-cd /Users/사용자이름/Downloads/Catoshi-2.16.8
+cd /Users/사용자이름/Downloads/Catoshi-2.16.9
 ```
 
 다음 명령으로 폴더와 버전을 확인할 수 있습니다.
@@ -112,10 +112,10 @@ open ~/Applications/Catoshi.app
 
 ## Git을 사용하는 경우
 
-공개된 릴리스 태그를 지정하면 ZIP과 같은 버전의 소스를 받습니다. v2.16.8 설치 예시:
+공개된 릴리스 태그를 지정하면 ZIP과 같은 버전의 소스를 받습니다. v2.16.9 설치 예시:
 
 ```bash
-git clone --branch v2.16.8 --depth 1 https://github.com/Rayeonjin/Catoshi.git
+git clone --branch v2.16.9 --depth 1 https://github.com/Rayeonjin/Catoshi.git
 cd Catoshi
 bash setup.sh
 ```
@@ -130,7 +130,7 @@ git fetch --tags origin
 로컬 수정이 있다면 별도 branch나 복사본에 보관한 뒤 진행합니다. 설치할 실제 공개 태그로 전환하고 빌드합니다.
 
 ```bash
-git switch --detach v2.16.8
+git switch --detach v2.16.9
 bash setup.sh
 ```
 
