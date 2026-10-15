@@ -1,9 +1,9 @@
-# Market freshness regression checks
+# Market freshness and update-check regressions
 
 With full Xcode installed:
 
 ```sh
-swift test --filter MarketDataFreshnessTests
+swift test
 ```
 
 Some Command Line Tools installations do not ship the `XCTest` module. On those Macs:
@@ -13,6 +13,8 @@ python3 Tests/run_freshness_checks.py
 ```
 
 The fallback compiles a temporary copy of the current production Swift sources, excluding only the GUI entry point. It runs the same test methods with Foundation assertions, exits with a nonzero status on failure, and prints the source snapshot SHA-256. It requires no third-party Python packages. Compiler modules are cached separately under `.build/freshness-module-cache`.
+
+Update checks cover numeric version ordering, beta precedence, invalid tags and drafts, release pagination, fixed GitHub links, credential-free requests, and explicit failure for rate limits, server errors, empty releases and malformed responses. These checks use a mocked URLSession and make no external requests.
 
 The checks use a deterministic clock and mocked service responses. They cover source age boundaries and clock skew, independent refresh cadences, partial data, cached values after failure, recovery, request cancellation and retry, ETF report dates, exclusion of stale context and core quotes from the market interpretation, retained domestic data status, concurrent domestic fetches, cancelled/older domestic responses, complete share-summary sentences, and full caption timestamps with explicit time zones. Test models disable background work and do not load or update the user's domestic radar history.
 
