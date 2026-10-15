@@ -353,12 +353,14 @@ struct CatoshiAboutView: View {
                     Text(language.pick("업데이트 안내", "Updates"))
                         .font(.system(size: CatoshiType.rowTitle, weight: .semibold))
                     Text(language.pick(
-                        "Catoshi는 새 버전을 자동으로 확인하거나 설치하지 않습니다. 보안·버그 수정과 거래소 API 변경 사항을 놓치지 않도록 GitHub 릴리스 또는 텔레그램 공지에서 새 버전 여부를 주기적으로 확인해 주세요. 업데이트는 새 버전의 소스를 내려받아 직접 빌드하여 적용할 수 있습니다.",
-                        "Catoshi does not automatically check for or install new versions. Check GitHub Releases or Telegram announcements periodically for security fixes, bug fixes and exchange API changes. To update, download the new version’s source and build it on your Mac."
+                        "업데이트 확인 버튼으로 새 버전 여부를 확인할 수 있습니다. 자동 확인·다운로드·설치는 하지 않습니다. 업데이트는 새 버전의 소스를 내려받아 직접 빌드하여 적용합니다. 변경 사항은 GitHub 릴리스와 텔레그램 공지에서도 확인할 수 있습니다.",
+                        "Use Check for Updates to check for a new version. Checks, downloads and installation are never automatic. To update, download the new version’s source and build it on your Mac. Changes are also available in GitHub Releases and Telegram announcements."
                     ))
                         .font(.system(size: CatoshiType.body))
                         .catoshiText(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
+
+                    UpdateCheckView(language: language)
 
                     AboutProjectLinkRow(
                         icon: "chevron.left.forwardslash.chevron.right",

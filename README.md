@@ -12,7 +12,7 @@ Catoshi는 **비상업적 개인 사용을 위한 macOS 메뉴바 앱**입니다
 
 > A little cat that walks and rests in your Mac menu bar, with Bitcoin and Korean market data alongside it. Source-available, for non-commercial personal use only.
 
-**버전: v2.16.12** · [변경 이력](docs/CHANGELOG.md) · [설치·업데이트·복구](docs/BUILDING.md)
+**버전: v2.16.13** · [변경 이력](docs/CHANGELOG.md) · [설치·업데이트·복구](docs/BUILDING.md)
 
 ## 주요 기능
 
@@ -63,7 +63,9 @@ Homebrew, 거래소 API Key, 유료 Apple Developer 계정은 필요하지 않�
 
 ## 업데이트와 이전 버전 복구
 
-**업데이트 안내:** Catoshi는 새 버전을 자동으로 확인하거나 설치하지 않습니다. 보안·버그 수정과 거래소 API 변경 사항을 놓치지 않도록 [GitHub 릴리스](https://github.com/Rayeonjin/Catoshi/releases) 또는 [텔레그램 공지](https://t.me/Rayeonjin)에서 새 버전 여부를 주기적으로 확인해 주세요. 업데이트는 새 버전의 소스를 내려받아 직접 빌드하여 적용할 수 있습니다.
+**업데이트 안내:** 앱의 **정보 → 업데이트 확인**을 누르면 GitHub의 공개 정식·베타 릴리스를 조회해 현재 버전과 비교합니다. 버튼을 누를 때만 접속하며 계정·기기 식별정보·사용 기록은 전송하지 않습니다. 새 버전이 있으면 해당 릴리스를 열 수 있습니다. 조회 실패는 별도로 표시합니다. 자동 확인·다운로드·설치는 하지 않으며, 업데이트는 새 버전의 소스를 내려받아 직접 빌드합니다. [GitHub 릴리스](https://github.com/Rayeonjin/Catoshi/releases) 또는 [텔레그램 공지](https://t.me/Rayeonjin)에서도 변경 사항을 확인할 수 있습니다.
+
+[업데이트 확인 화면 예시](docs/images/update-check.png)
 
 새 릴리스의 **Source code ZIP**을 별도 폴더에 풀고 그 폴더에서 `bash setup.sh`를 실행합니다. 기존 앱을 먼저 지우지 마세요. 새 앱은 검증을 거쳐 교체하며 이전 앱은 `~/Applications/Catoshi.previous.app`에 한 개 보관합니다. 설정과 Activity Radar 기록은 유지합니다.
 

@@ -116,12 +116,30 @@ guard let context = CGContext(
 context.interpolationQuality = .high
 context.setShouldAntialias(true)
 
+let crops = Dictionary(uniqueKeysWithValues: frames.map { ($0.name, sheets[$0.sheet].pose(row: $0.row, column: $0.column)) })
+var gaitScales: [String: CGFloat] = [:]
+// Use one source-to-atlas scale per gait, rather than resizing the body anew
+// whenever a paw or tail changes the pose's bounding box.
+for names in [["walk1", "walk2", "walk3", "walk4"], ["run1", "run2"], ["zoom1", "zoom2"]] {
+    let scale = frames.filter { names.contains($0.name) }.map { frame in
+        let crop = crops[frame.name]!
+        return min(CGFloat(frame.width - 2) / CGFloat(crop.width), 38 / CGFloat(crop.height))
+    }.min()!
+    for name in names { gaitScales[name] = scale }
+}
+
 for frame in frames {
-    let crop = sheets[frame.sheet].pose(row: frame.row, column: frame.column)
-    let scale = min(CGFloat(frame.width - 2) / CGFloat(crop.width), 38 / CGFloat(crop.height))
+    let crop = crops[frame.name]!
+    let scale = gaitScales[frame.name] ?? min(CGFloat(frame.width - 2) / CGFloat(crop.width), 38 / CGFloat(crop.height))
     let width = CGFloat(crop.width) * scale
     let height = CGFloat(crop.height) * scale
-    context.draw(crop, in: CGRect(x: CGFloat(frame.x) + (CGFloat(frame.width) - width) / 2, y: 1, width: width, height: height))
+    // Generated photographs face left; every runtime atlas must face right at
+    // facing == 1, so menu-bar travel and the front-facing turn agree for all coats.
+    context.saveGState()
+    context.translateBy(x: CGFloat(frame.x + frame.width), y: 0)
+    context.scaleBy(x: -1, y: 1)
+    context.draw(crop, in: CGRect(x: (CGFloat(frame.width) - width) / 2, y: 1, width: width, height: height))
+    context.restoreGState()
 }
 
 guard let atlas = context.makeImage() else {
