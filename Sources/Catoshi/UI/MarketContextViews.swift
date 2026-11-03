@@ -246,6 +246,11 @@ struct MarketContextSection: View {
                 palette: palette
             )
 
+            MarketReadGuidanceCard(
+                read: read,
+                language: language
+            )
+
             LazyVGrid(columns: overviewColumns, spacing: 7) {
                 MarketOverviewSignalCard(
                     title: language.pick("시장 구조", "Market Structure"),
@@ -300,6 +305,11 @@ struct MarketContextSection: View {
                     .font(.system(size: CatoshiType.metadata))
                     .catoshiText(.metadata)
             }
+
+            MarketReadGuidanceCard(
+                read: read,
+                language: language
+            )
 
             MarketMetricGroup(title: language.pick("시장 구조", "Market Structure")) {
                 LazyVGrid(columns: detailColumns, spacing: 7) {
@@ -626,6 +636,57 @@ private struct MarketPulseSummaryCard: View {
             RoundedRectangle(cornerRadius: 9, style: .continuous)
                 .stroke(accent.opacity(0.17), lineWidth: 0.8)
         )
+        .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+    }
+}
+
+/// The synthesized part of a market read that used to be computed but never
+/// shown in the Market tab: how to read the current regime, what would
+/// change that read, and the numbers it rests on. Overview previously showed
+/// only the first sentence of the summary, and Detail showed only metric
+/// cards, so this card is what turns indicators into a usable read.
+/// It deliberately stays in "what to check" language, not a buy/sell call.
+private struct MarketReadGuidanceCard: View {
+    let read: MarketRead
+    let language: AppLanguage
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Text(language.pick("판단 · 반전 신호", "Decision · Reversal"))
+                .font(.system(size: CatoshiType.secondary, weight: .semibold))
+                .catoshiText(.secondary)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(language.pick("이렇게 봅니다", "How to read this"))
+                    .font(.system(size: CatoshiType.secondary, weight: .semibold))
+                Text(read.decision)
+                    .font(.system(size: CatoshiType.body))
+                    .lineSpacing(1.4)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(language.pick("해석이 바뀌는 신호", "What would change this read"))
+                    .font(.system(size: CatoshiType.secondary, weight: .semibold))
+                Text(read.reversal)
+                    .font(.system(size: CatoshiType.body))
+                    .lineSpacing(1.4)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            if !read.basis.isEmpty {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(language.pick("근거", "Basis"))
+                        .font(.system(size: CatoshiType.secondary, weight: .semibold))
+                    Text(read.basis)
+                        .font(.system(size: CatoshiType.secondary))
+                        .catoshiText(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+        .padding(9)
+        .background(Color(nsColor: .controlBackgroundColor).opacity(0.50))
         .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
     }
 }
