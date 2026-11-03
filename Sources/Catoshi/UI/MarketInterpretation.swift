@@ -429,7 +429,7 @@ private func makeMarketReadKorean(
     var checklist: [String] = []
     if let oi = fast?.openInterestChange1h, let funding = fast?.fundingRatePercent,
        (oi >= 5.0 && abs(funding) >= 0.05) || abs(funding) >= 0.10 {
-        checklist.append("레버리지 과밀: 진입 전에 손실 허용폭을 먼저 정하고, OI·Funding이 식는지 확인합니다.")
+        checklist.append("레버리지 과밀: OI 증가폭과 Funding 쏠림이 함께 완화되는지 확인합니다.")
     }
     if let kimchi = premium?.value, kimchi >= 5.0 {
         checklist.append("국내 과열: 김프만으로 추세를 확신하지 않고, 글로벌 가격·OI·Funding 과열이 같이 나타나는지 확인합니다.")
@@ -746,7 +746,7 @@ private func makeMarketReadEnglish(
     var checklist: [String] = []
     if let oi = fast?.openInterestChange1h, let funding = fast?.fundingRatePercent,
        (oi >= 5.0 && abs(funding) >= 0.05) || abs(funding) >= 0.10 {
-        checklist.append("Leverage crowding: set your loss tolerance before entering, and check whether OI and funding cool off.")
+        checklist.append("Leverage crowding: check whether OI growth and the funding imbalance ease together.")
     }
     if let kimchi = premium?.value, kimchi >= 5.0 {
         checklist.append("Korean overheating: do not confirm a trend from the kimchi premium alone; check whether global price, OI and funding are overheating together.")
