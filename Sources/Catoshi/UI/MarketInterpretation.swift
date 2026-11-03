@@ -50,6 +50,7 @@ func makeMarketRead(
                 "매크로 데이터가 오래됐거나 갱신에 실패했거나 일부 변화율이 누락되었습니다. 정상 데이터를 받은 뒤 시장 해석을 다시 제공합니다.",
                 "Macro data is stale, failed to refresh, or is missing required changes. The market read resumes after valid data arrives."),
             decision: language.pick("마지막 수치는 참고용으로만 표시합니다.", "Retained numbers are historical reference only."),
+            checklist: [language.pick("데이터 갱신 확인: 출처별 상태와 마지막 수신 시각을 먼저 확인합니다.", "Check data freshness first: source status and last received time.")],
             reversal: language.pick("출처별 상태와 마지막 수신 시각을 확인하세요.", "Check each source status and last received time."),
             basis: result.basis,
             alignment: language.pick("해석 보류", "Read paused"),
@@ -65,7 +66,7 @@ func makeMarketRead(
     return MarketRead(
         title: result.title,
         summary: result.summary + language.pick(" 오래되었거나 수신에 실패한 보조 지표는 해석에서 제외했습니다.", " Stale or failed auxiliary indicators are excluded from this read."),
-        decision: result.decision, reversal: result.reversal, basis: result.basis,
+        decision: result.decision, checklist: result.checklist, reversal: result.reversal, basis: result.basis,
         alignment: result.alignment + language.pick(" · 일부 지표 제외", " · Some inputs excluded"),
         dimensions: result.dimensions, tone: result.tone,
         badges: result.badges + [language.pick("일부 지표 제외", "Some inputs excluded")]
@@ -85,6 +86,7 @@ private func makeMarketReadKorean(
             title: "시장 맥락 계산 중",
             summary: "도미넌스와 시가총액 데이터를 기다리고 있습니다. 핵심 데이터가 모이면 자금·주도권·현물수요·중기 추세·레버리지·국내 심리를 분리해서 해석합니다.",
             decision: "현재는 데이터가 충분하지 않아 방향성 판단을 유보하는 편이 낫습니다.",
+            checklist: ["데이터 대기: BTC.D·USDT.D·TOTAL3가 도착하면 자금·주도권·현물수요를 분리해서 다시 봅니다."],
             reversal: "시장 탭을 연 상태에서 매크로 데이터가 갱신되면 자동으로 해석합니다.",
             basis: "BTC.D · USDT.D · TOTAL3* 데이터 대기",
             alignment: "데이터 대기",
@@ -421,10 +423,34 @@ private func makeMarketReadKorean(
         return MarketReadDimension(id: "price", label: "가격", signal: day >= 0 ? "24h 강세" : "24h 약세", explanation: String(format: "BTC 24h %+.1f%%입니다. 단기 5m 기준이 준비되면 큰 방향과 단기 모멘텀의 일치 여부도 같이 봅니다.", day))
     }()
 
+    // Regime checklist, risk first, at most four items. Each item names a
+    // check, never a buy/sell instruction, and reuses the thresholds the
+    // dimensions above already use so no new magic numbers appear here.
+    var checklist: [String] = []
+    if let oi = fast?.openInterestChange1h, let funding = fast?.fundingRatePercent,
+       (oi >= 5.0 && abs(funding) >= 0.05) || abs(funding) >= 0.10 {
+        checklist.append("레버리지 과밀: 진입 전에 손실 허용폭을 먼저 정하고, OI·Funding이 식는지 확인합니다.")
+    }
+    if let kimchi = premium?.value, kimchi >= 5.0 {
+        checklist.append("국내 과열: 김프만으로 추세를 확신하지 않고, 글로벌 가격·OI·Funding 과열이 같이 나타나는지 확인합니다.")
+    }
+    if let etf5d = investor?.etfFiveDayFlowUSD, etf5d <= -500_000_000 {
+        checklist.append("현물 수요 약화: 가격이 올라도 ETF 순유출이 계속되면 레버리지가 상승을 대신 채우는지 확인합니다.")
+    }
+    if tone == .riskOff {
+        checklist.append("방어 국면: USDT.D가 꺾이고 TOTAL3가 회복되기 전까지 위험선호 회복을 성급히 가정하지 않습니다.")
+    } else if let stable7d = investor?.stablecoinSupplyChange7d, stable7d <= -0.50 {
+        checklist.append("유동성 축소: 스테이블 공급이 줄어드는 동안 신규 자금 유입으로 읽지 않고 TOTAL3·가격 지속성을 확인합니다.")
+    }
+    if checklist.isEmpty {
+        checklist.append("정렬 확인: 자금 흐름(USDT.D·스테이블 공급)과 시장 폭(TOTAL3·ETH/BTC)이 같은 방향인지 확인합니다.")
+    }
+
     return MarketRead(
         title: title,
         summary: summary,
         decision: decision,
+        checklist: Array(checklist.prefix(4)),
         reversal: reversal,
         basis: basisParts.joined(separator: " · "),
         alignment: title == "혼조·전환 구간" ? "신호 혼조" : "핵심 정렬 \(min(aligned, alignmentTotal))/\(alignmentTotal)",
@@ -448,6 +474,7 @@ private func makeMarketReadEnglish(
             title: "Building market context",
             summary: "Waiting for dominance and market-cap data. Once the core inputs arrive, Catoshi separates liquidity, leadership, spot demand, medium-term trend, leverage and Korean retail sentiment.",
             decision: "There is not enough data yet to make a directional read.",
+            checklist: ["Waiting for data: once BTC.D, USDT.D and TOTAL3 arrive, liquidity, leadership and spot demand are read separately."],
             reversal: "Keep the Market tab open; the interpretation updates automatically when the macro data arrives.",
             basis: "Waiting for BTC.D · USDT.D · TOTAL3*",
             alignment: "Waiting for data",
@@ -713,10 +740,34 @@ private func makeMarketReadEnglish(
         return MarketReadDimension(id: "price", label: "Price", signal: day >= 0 ? "24h bullish" : "24h bearish", explanation: String(format: "BTC 24h %+.1f%%. Once the 5m reference is ready, compare short-term momentum with the larger direction.", day))
     }()
 
+    // Regime checklist, risk first, at most four items. Each item names a
+    // check, never a buy/sell instruction, and reuses the thresholds the
+    // dimensions above already use so no new magic numbers appear here.
+    var checklist: [String] = []
+    if let oi = fast?.openInterestChange1h, let funding = fast?.fundingRatePercent,
+       (oi >= 5.0 && abs(funding) >= 0.05) || abs(funding) >= 0.10 {
+        checklist.append("Leverage crowding: set your loss tolerance before entering, and check whether OI and funding cool off.")
+    }
+    if let kimchi = premium?.value, kimchi >= 5.0 {
+        checklist.append("Korean overheating: do not confirm a trend from the kimchi premium alone; check whether global price, OI and funding are overheating together.")
+    }
+    if let etf5d = investor?.etfFiveDayFlowUSD, etf5d <= -500_000_000 {
+        checklist.append("Weak spot demand: if price rises while ETF outflows persist, check whether leverage is filling the gap.")
+    }
+    if tone == .riskOff {
+        checklist.append("Risk-off regime: do not assume risk appetite has recovered until USDT.D turns down and TOTAL3 recovers.")
+    } else if let stable7d = investor?.stablecoinSupplyChange7d, stable7d <= -0.50 {
+        checklist.append("Shrinking liquidity: while stablecoin supply falls, do not read the move as fresh inflows; check TOTAL3 and price persistence instead.")
+    }
+    if checklist.isEmpty {
+        checklist.append("Alignment check: confirm that liquidity (USDT.D, stablecoin supply) and breadth (TOTAL3, ETH/BTC) point the same way.")
+    }
+
     return MarketRead(
         title: title,
         summary: summary,
         decision: decision,
+        checklist: Array(checklist.prefix(4)),
         reversal: reversal,
         basis: basisParts.joined(separator: " · "),
         alignment: title == "Mixed / transition regime" ? "Signals mixed" : "Core alignment \(min(aligned, alignmentTotal))/\(alignmentTotal)",
