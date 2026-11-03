@@ -665,6 +665,24 @@ private struct MarketReadGuidanceCard: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
+            if !read.checklist.isEmpty {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(language.pick("확인 순서", "Checklist"))
+                        .font(.system(size: CatoshiType.secondary, weight: .semibold))
+                    ForEach(read.checklist.indices, id: \.self) { index in
+                        HStack(alignment: .top, spacing: 6) {
+                            Text("\(index + 1).")
+                                .font(.system(size: CatoshiType.body))
+                                .catoshiText(.secondary)
+                            Text(read.checklist[index])
+                                .font(.system(size: CatoshiType.body))
+                                .lineSpacing(1.4)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                }
+            }
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(language.pick("해석이 바뀌는 신호", "What would change this read"))
                     .font(.system(size: CatoshiType.secondary, weight: .semibold))
