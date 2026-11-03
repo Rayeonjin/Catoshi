@@ -114,6 +114,10 @@ struct MarketRead {
     let title: String
     let summary: String
     let decision: String
+    /// Ordered "what to check" items for the current regime, risk first.
+    /// Deliberately not buy/sell instructions: each item names a check,
+    /// not an action to take.
+    let checklist: [String]
     let reversal: String
     let basis: String
     let alignment: String
