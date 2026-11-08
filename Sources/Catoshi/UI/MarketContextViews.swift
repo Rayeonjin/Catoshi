@@ -35,6 +35,30 @@ struct MarketContextSection: View {
     let btcUpdatedAt: Date?
     let premiumUpdatedAt: Date?
 
+    var body: some View {
+        TimelineView(.periodic(from: .now, by: 60)) { _ in
+            let now = Date()
+            let inputs = context.interpretationInputs(at: now)
+            let read = makeMarketRead(macro: context.macro, fast: context.fast, investor: context.investor,
+                freshness: context.freshness, premium: premium, btcChange24h: btcChange24h, btcChange5m: btcChange5m,
+                language: language, btcUpdatedAt: btcUpdatedAt, premiumUpdatedAt: premiumUpdatedAt, now: now)
+            MarketContextContent(context: context, palette: palette, premium: premium, btcChange24h: btcChange24h,
+                btcChange5m: btcChange5m, language: language, btcUpdatedAt: btcUpdatedAt, premiumUpdatedAt: premiumUpdatedAt,
+                inputs: inputs, read: read)
+        }
+    }
+}
+
+private struct MarketContextContent: View {
+    let context: MarketContextModel
+    let palette: DisplayPalette
+    let premium: PremiumSnapshot?
+    let btcChange24h: Double?
+    let btcChange5m: Double?
+    let language: AppLanguage
+    let btcUpdatedAt: Date?
+    let premiumUpdatedAt: Date?
+
     @AppStorage("marketViewModeV1") private var viewModeRaw = MarketViewMode.overview.rawValue
 
     private let overviewColumns = [
@@ -55,22 +79,8 @@ struct MarketContextSection: View {
         )
     }
 
-    private var inputs: MarketInterpretationInputs { context.interpretationInputs() }
-
-    private var read: MarketRead {
-        makeMarketRead(
-            macro: context.macro,
-            fast: context.fast,
-            investor: context.investor,
-            freshness: context.freshness,
-            premium: premium,
-            btcChange24h: btcChange24h,
-            btcChange5m: btcChange5m,
-            language: language,
-            btcUpdatedAt: btcUpdatedAt,
-            premiumUpdatedAt: premiumUpdatedAt
-        )
-    }
+    let inputs: MarketInterpretationInputs
+    let read: MarketRead
 
     private func dimension(_ id: String) -> MarketReadDimension? {
         read.dimensions.first { $0.id == id }
@@ -118,13 +128,7 @@ struct MarketContextSection: View {
         return language.pick("USDT.D와 TOTAL3가 한 방향으로 충분히 정렬되지 않았습니다.", "USDT.D and TOTAL3 are not aligned strongly enough in one direction.")
     }
 
-    var body: some View {
-        // This timer exists only while the Market tab is mounted. Age labels also
-        // advance offline, without adding any background network or refresh work.
-        TimelineView(.periodic(from: .now, by: 60)) { _ in
-            marketContent
-        }
-    }
+    var body: some View { marketContent }
 
     private var marketContent: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -156,8 +160,8 @@ struct MarketContextSection: View {
             sourceStatusRow("Binance", source: .fast, updatedAt: context.fast?.updatedAt)
             sourceStatusRow("DeFiLlama · Farside · Binance", source: .investor, updatedAt: context.investor?.updatedAt)
             Text(language.pick(
-                "해석 제외 기준: 매크로 20분 · ETH/파생 3분 · 일간 지표 수신 2시간 경과 또는 갱신 실패. ETF 보고일은 별도 표시하며 7일 경과 시 제외합니다.",
-                "Reads exclude failed data or ages ≥20m macro, ≥3m ETH/derivatives, ≥2h daily-data receipt. ETF reports ≥7 calendar days old are excluded."))
+                "해석 제외 기준: 매크로 20분 · ETH/Funding 3분 · OI 개별 수신 10분 · 일간 지표 수신 2시간 경과 또는 갱신 실패. ETF 보고일은 별도 표시하며 7일 경과 시 제외합니다.",
+                "Reads exclude failed data or ages ≥20m macro, ≥3m ETH/funding, ≥10m OI receipt, ≥2h daily-data receipt. ETF reports ≥7 calendar days old are excluded."))
                 .font(.system(size: CatoshiType.metadata))
                 .catoshiText(.metadata)
                 .fixedSize(horizontal: false, vertical: true)
@@ -395,7 +399,7 @@ struct MarketContextSection: View {
                         title: "BTC OI",
                         value: context.fast?.openInterestUSD.map(formatUSDMarketCap) ?? "--",
                         changeText: context.fast?.openInterestChange1h.map { "1h " + signedMetric($0) + "%" } ?? "1h --",
-                        statusText: metricStatus(.fast, hasValue: context.fast?.openInterestUSD != nil),
+                        statusText: openInterestStatus,
                         signal: openInterestSignal,
                         explanation: openInterestExplanation,
                         language: language
@@ -412,6 +416,18 @@ struct MarketContextSection: View {
                 }
             }
         }
+    }
+
+    private var openInterestStatus: String {
+        guard context.status(for: .fast).allowsInterpretation,
+              let fast = context.fast, fast.openInterestUSD != nil else {
+            return metricStatus(.fast, hasValue: context.fast?.openInterestUSD != nil)
+        }
+        guard let receivedAt = fast.openInterestFetchedAt,
+              MarketRefreshState.isCurrent(receivedAt, maximumAge: CatoshiRuntimePolicy.openInterestMaximumAge, now: Date()) else {
+            return language.pick("OI 데이터 오래됨", "OI data stale")
+        }
+        return language.pick("OI 수신 ", "OI received ") + formatTime(receivedAt)
     }
 
     private var btcDominanceSignal: String {

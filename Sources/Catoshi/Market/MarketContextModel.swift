@@ -74,6 +74,18 @@ struct FastMarketSnapshot {
     let openInterestChange1h: Double?
     let fundingRatePercent: Double?
     let updatedAt: Date
+    let openInterestFetchedAt: Date?
+
+    init(ethBTC: Double, ethBTCChange24h: Double, openInterestUSD: Double?, openInterestChange1h: Double?,
+         fundingRatePercent: Double?, updatedAt: Date, openInterestFetchedAt: Date? = nil) {
+        self.ethBTC = ethBTC
+        self.ethBTCChange24h = ethBTCChange24h
+        self.openInterestUSD = openInterestUSD
+        self.openInterestChange1h = openInterestChange1h
+        self.fundingRatePercent = fundingRatePercent
+        self.updatedAt = updatedAt
+        self.openInterestFetchedAt = openInterestFetchedAt ?? (openInterestUSD != nil ? updatedAt : nil)
+    }
 }
 
 struct InvestorMarketSnapshot {
@@ -347,7 +359,7 @@ final class MarketContextModel: ObservableObject {
             guard let self else { return }
             while !Task.isCancelled {
                 await self.refreshFocusedData(force: false)
-                try? await Task.sleep(for: .seconds(60))
+                try? await Task.sleep(for: .seconds(60), tolerance: .seconds(3))
             }
         }
     }
@@ -372,7 +384,7 @@ final class MarketContextModel: ObservableObject {
                 let cadence: TimeInterval = isVisible
                     ? 60
                     : self.activityRadar.preferredBackgroundCadence()
-                try? await Task.sleep(for: .seconds(cadence))
+                try? await Task.sleep(for: .seconds(cadence), tolerance: .seconds(isVisible ? 3 : 15))
             }
         }
     }
@@ -421,7 +433,7 @@ final class MarketContextModel: ObservableObject {
                 self.domesticPublishRequested = false
             }
             do {
-                let snapshot = try await self.service.fetchDomesticExchangeVolumes()
+                let snapshot = try await self.service.fetchDomesticExchangeVolumes(force: force)
                 guard !Task.isCancelled else { return }
                 if let cached = self.latestDomesticSnapshot, snapshot.updatedAt < cached.updatedAt {
                     if self.domesticPublishRequested {
@@ -546,7 +558,7 @@ final class MarketContextModel: ObservableObject {
         guard freshness.fast.shouldRefresh(source: .fast, now: now(), force: force) else { return }
         freshness.fast.didAttempt(at: now())
         do {
-            let snapshot = try await service.fetchFastMarket()
+            let snapshot = try await service.fetchFastMarket(force: force)
             if Task.isCancelled {
                 freshness.fast.didCancel()
                 return

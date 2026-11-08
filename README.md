@@ -12,7 +12,7 @@ Catoshi는 **비상업적 개인 사용을 위한 macOS 메뉴바 앱**입니다
 
 > A little cat that walks and rests in your Mac menu bar, with Bitcoin and Korean market data alongside it. Source-available, for non-commercial personal use only.
 
-**버전: v2.16.14** · [변경 이력](docs/CHANGELOG.md) · [설치·업데이트·복구](docs/BUILDING.md)
+**버전: v2.16.15** · [변경 이력](docs/CHANGELOG.md) · [설치·업데이트·복구](docs/BUILDING.md)
 
 ## 주요 기능
 
@@ -152,6 +152,8 @@ Catoshi를 즐겁게 사용하고 있다면 **[Fairy에서 개발 응원하기](
 후원 안내는 README와 Telegram에만 두며 앱과 공유 이미지·캡션에는 넣지 않습니다.
 
 ## 데이터와 개인정보
+
+시세 표시 주기는 유지하면서 거래소 장애 재시도, OI 조회, 비교값·차트 재다운로드와 시장 해석 중복 계산을 줄였습니다. 자세한 주기와 캐시 기준은 [리소스·갱신 정책](docs/RESOURCE_USAGE.md)을 참고하세요.
 
 Catoshi는 제공자의 공개 인터페이스에서 시장 데이터를 직접 읽습니다. 로그인 정보, 거래소 API Key, 지갑 키, 거래 계정 정보를 요구하지 않습니다. 출처·용도·이용 조건은 [DATA_SOURCES.md](docs/DATA_SOURCES.md)를 확인하세요.
 

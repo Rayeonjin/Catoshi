@@ -98,12 +98,15 @@ final class DomesticActivityRadarEngine {
 
     private var samples: [StoredSample] = []
     private var lastPersistedAt: Date?
-    private var latestObservationComplete = false
     private var latestDisplaySnapshot: DomesticActivitySnapshot?
     private let historyURL: URL?
     private let persistenceQueue = DispatchQueue(label: "Catoshi.ActivityRadarPersistence", qos: .utility)
 
-    init() {
+    init(persistenceEnabled: Bool = true) {
+        guard persistenceEnabled else {
+            historyURL = nil
+            return
+        }
         let fm = FileManager.default
         if let base = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
             let directory = base.appendingPathComponent("Catoshi", isDirectory: true)
@@ -133,7 +136,6 @@ final class DomesticActivityRadarEngine {
 
     private func record(_ snapshot: DomesticVolumeSnapshot) {
         let values = Dictionary(uniqueKeysWithValues: snapshot.entries.map { ($0.exchange.rawValue, $0.krw24h) })
-        latestObservationComplete = hasCompleteVenueSet(values)
         guard !values.isEmpty else { return }
 
         let sample = StoredSample(timestamp: snapshot.updatedAt, values: values)
@@ -155,15 +157,13 @@ final class DomesticActivityRadarEngine {
     /// Chooses the lowest background cadence needed for a useful startup experience.
     /// This only affects aggregate exchange snapshots; it never enables per-market streams.
     func preferredBackgroundCadence(now: Date = Date()) -> TimeInterval {
-        // Stay on the temporary warm-start cadence until both the latest sample and a real
-        // ~15-minute reference contain all five venues. After an outage recovers, this keeps
-        // sampling every three minutes long enough for the recovered venue to rebuild its own
-        // 15m comparison instead of immediately dropping back to a 15-minute sleep.
-        guard latestObservationComplete,
-              let latest = samples.last,
-              hasCompleteVenueSet(latest.values),
+        // A failing venue must not keep every healthy venue on a 3-minute loop forever.
+        // A recovered/new venue still gets warm-start samples until its own 15m reference exists.
+        guard let latest = samples.last, !latest.values.isEmpty,
+              now.timeIntervalSince(latest.timestamp) >= 0,
+              now.timeIntervalSince(latest.timestamp) < retainedFifteenMinuteMaxAge,
               let reference15 = fifteenMinuteReferenceSample(now: now),
-              hasCompleteVenueSet(reference15.values) else {
+              Set(latest.values.keys).isSubset(of: Set(reference15.values.keys)) else {
             return warmStartBackgroundCadence
         }
         return steadyBackgroundCadence
@@ -621,7 +621,6 @@ final class DomesticActivityRadarEngine {
         samples = decoded.sorted { $0.timestamp < $1.timestamp }
         prune(relativeTo: Date())
         lastPersistedAt = samples.last?.timestamp
-        latestObservationComplete = samples.last.map { hasCompleteVenueSet($0.values) } ?? false
     }
 
     private func persistHistory(now: Date, force: Bool = false) {

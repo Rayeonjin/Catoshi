@@ -18,6 +18,8 @@ Update checks cover numeric version ordering, beta precedence, invalid tags and 
 
 Market checklist checks cover Korean and English output, inclusive thresholds, risk ordering and the four-item limit, missing core or derivative data, stale/failed inputs, and outdated ETF report exclusion while fresh liquidity remains usable.
 
+Resource refresh checks use mocked HTTP responses and a controlled clock to count per-venue retries and selected chart requests, verify five-minute OI reuse without retimestamping, reject expired values after failures and clock rollback, and exercise cancellation/retry. Partial-venue radar recovery uses an engine with persistence disabled and never touches user history. These deterministic request counts establish reduced duplicate HTTP work, not a measured percentage reduction in CPU or battery use.
+
 The checks use a deterministic clock and mocked service responses. They cover source age boundaries and clock skew, independent refresh cadences, partial data, cached values after failure, recovery, request cancellation and retry, ETF report dates, exclusion of stale context and core quotes from the market interpretation, retained domestic data status, concurrent domestic fetches, cancelled/older domestic responses, complete share-summary sentences, and full caption timestamps with explicit time zones. Test models disable background work and do not load or update the user's domestic radar history.
 
 These regressions do not establish live provider availability, market-data accuracy, UI layout, or Intel compatibility; those require separate verification.

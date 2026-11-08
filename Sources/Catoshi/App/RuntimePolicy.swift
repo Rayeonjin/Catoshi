@@ -35,6 +35,8 @@ enum CatoshiRuntimePolicy {
     static let referenceRefreshInterval: TimeInterval = 10 * 60
     static let referenceRetryInterval: TimeInterval = 60
     static let sparklineRefreshInterval: TimeInterval = 10 * 60
+    static let openInterestRefreshInterval: TimeInterval = 5 * 60
+    static let openInterestMaximumAge: TimeInterval = 10 * 60
 
     /// Avoid shifting the five-minute momentum array on every one-second sample.
     static let momentumPruneInterval: TimeInterval = 30.0

@@ -1,23 +1,31 @@
 import Foundation
 
-final class MarketContextService {
+actor MarketContextService {
     private let session: URLSession
+    private let now: () -> Date
+    private var venueRetries: [DomesticExchange: VenueRetryState] = [:]
+    private var openInterestCache: FreshValue<OpenInterestSummary>?
 
-    init() {
-        session = URLSession(configuration: CatoshiNetworkRuntime.ephemeralConfiguration(
+    init(session: URLSession? = nil, now: @escaping () -> Date = Date.init) {
+        self.now = now
+        self.session = session ?? URLSession(configuration: CatoshiNetworkRuntime.ephemeralConfiguration(
             requestTimeout: 12,
             resourceTimeout: 35
         ))
     }
 
     func fetchDomesticExchangeVolumes() async throws -> DomesticVolumeSnapshot {
-        async let upbit = fetchUpbitResult()
-        async let bithumb = fetchBithumbResult()
-        async let coinone = fetchCoinoneResult()
-        async let korbit = fetchKorbitResult()
-        async let gopax = fetchGopaxResult()
+        try await fetchDomesticExchangeVolumes(force: false)
+    }
 
-        let values = await (upbit, bithumb, coinone, korbit, gopax)
+    func fetchDomesticExchangeVolumes(force: Bool) async throws -> DomesticVolumeSnapshot {
+        async let upbit = fetchVenue(.upbit, force: force)
+        async let bithumb = fetchVenue(.bithumb, force: force)
+        async let coinone = fetchVenue(.coinone, force: force)
+        async let korbit = fetchVenue(.korbit, force: force)
+        async let gopax = fetchVenue(.gopax, force: force)
+
+        let values = try await (upbit, bithumb, coinone, korbit, gopax)
         let results = [values.0, values.1, values.2, values.3, values.4]
 
         let entries = results.compactMap { result -> DomesticExchangeVolume? in
@@ -31,9 +39,31 @@ final class MarketContextService {
         return DomesticVolumeSnapshot(
             entries: entries,
             availability: availability,
-            updatedAt: Date(),
+            updatedAt: now(),
             isPartial: entries.count != DomesticExchange.allCases.count
         )
+    }
+
+    private func fetchVenue(_ exchange: DomesticExchange, force: Bool) async throws -> DomesticExchangeFetchResult {
+        try Task.checkCancellation()
+        let retry = venueRetries[exchange] ?? VenueRetryState()
+        guard retry.shouldRetry(at: now(), force: force) else {
+            // Preserve the failure state, never turn a retained value into a new sample.
+            return DomesticExchangeFetchResult(exchange: exchange, volume: nil, state: retry.state)
+        }
+        let result: DomesticExchangeFetchResult
+        switch exchange {
+        case .upbit: result = await fetchUpbitResult()
+        case .bithumb: result = await fetchBithumbResult()
+        case .coinone: result = await fetchCoinoneResult()
+        case .korbit: result = await fetchKorbitResult()
+        case .gopax: result = await fetchGopaxResult()
+        }
+        try Task.checkCancellation()
+        var next = venueRetries[exchange] ?? VenueRetryState()
+        next.record(result.state, at: now())
+        venueRetries[exchange] = next
+        return result
     }
 
     func fetchMacroMarket() async throws -> MacroMarketSnapshot {
@@ -99,8 +129,12 @@ final class MarketContextService {
     }
 
     func fetchFastMarket() async throws -> FastMarketSnapshot {
+        try await fetchFastMarket(force: false)
+    }
+
+    func fetchFastMarket(force: Bool) async throws -> FastMarketSnapshot {
         async let ethBTCTask = fetchETHBTCTicker()
-        async let oiTask: OpenInterestSummary? = try? fetchOpenInterestSummary()
+        async let oiTask: FreshValue<OpenInterestSummary>? = try? cachedOpenInterest(force: force)
         async let fundingTask: Double? = try? fetchFundingRatePercent()
 
         let ethTicker = try await ethBTCTask
@@ -110,11 +144,22 @@ final class MarketContextService {
         return FastMarketSnapshot(
             ethBTC: ethTicker.lastPrice,
             ethBTCChange24h: ethTicker.priceChangePercent,
-            openInterestUSD: oi?.currentUSD,
-            openInterestChange1h: oi?.change1h,
+            openInterestUSD: oi?.value.currentUSD,
+            openInterestChange1h: oi?.value.change1h,
             fundingRatePercent: funding,
-            updatedAt: Date()
+            updatedAt: now(),
+            openInterestFetchedAt: oi?.receivedAt
         )
+    }
+
+    private func cachedOpenInterest(force: Bool) async throws -> FreshValue<OpenInterestSummary> {
+        if !force, let cached = openInterestCache,
+           cached.remaining(at: now(), lifetime: CatoshiRuntimePolicy.openInterestRefreshInterval) > 0 { return cached }
+        let value = try await fetchOpenInterestSummary()
+        try Task.checkCancellation()
+        let cached = FreshValue(value: value, receivedAt: now())
+        openInterestCache = cached
+        return cached
     }
 
     func fetchInvestorMarket() async throws -> InvestorMarketSnapshot {

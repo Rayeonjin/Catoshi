@@ -1,10 +1,15 @@
 import Foundation
 
-final class HistoricalReferenceService {
+actor HistoricalReferenceService {
     private let session: URLSession
+    private let now: () -> Date
+    private var referenceCache: FreshValue<Reference24h>?
+    private var binanceSeriesCache: FreshValue<[Int64: Double]>?
+    private var upbitSeriesCaches: [String: FreshValue<[Int64: Double]>] = [:]
 
-    init() {
-        session = URLSession(configuration: CatoshiNetworkRuntime.ephemeralConfiguration(
+    init(session: URLSession? = nil, now: @escaping () -> Date = Date.init) {
+        self.now = now
+        self.session = session ?? URLSession(configuration: CatoshiNetworkRuntime.ephemeralConfiguration(
             requestTimeout: 10,
             resourceTimeout: 30
         ))
@@ -39,10 +44,10 @@ final class HistoricalReferenceService {
         .sorted { $0.date < $1.date }
     }
 
-    func fetchSparkline24Hours() async throws -> HistoricalSeries {
-        async let binance = fetchBinance15MinuteSeries()
-        async let upbitBTC = fetchUpbit15MinuteSeries(market: "KRW-BTC")
-        async let upbitUSDT = fetchUpbit15MinuteSeries(market: "KRW-USDT")
+    func fetchSparkline24Hours(selection: SparklineSelection = .all) async throws -> HistoricalSeries {
+        async let binance = fetchBinance15MinuteSeries(needed: selection.binance || selection.premium)
+        async let upbitBTC = fetchUpbit15MinuteSeries(market: "KRW-BTC", needed: selection.upbit || selection.premium)
+        async let upbitUSDT = fetchUpbit15MinuteSeries(market: "KRW-USDT", needed: selection.premium)
 
         let (binanceSeries, upbitBTCSeries, upbitUSDTSeries) = try await (binance, upbitBTC, upbitUSDT)
 
@@ -70,22 +75,36 @@ final class HistoricalReferenceService {
         )
     }
 
+    func nextReferenceRefreshDelay() -> TimeInterval {
+        referenceCache?.remaining(at: now(), lifetime: CatoshiRuntimePolicy.referenceRefreshInterval) ?? 0
+    }
+
+    func nextSparklineRefreshDelay(selection: SparklineSelection) -> TimeInterval {
+        var delays: [TimeInterval] = []
+        if selection.binance || selection.premium { delays.append(binanceSeriesCache?.remaining(at: now(), lifetime: CatoshiRuntimePolicy.sparklineRefreshInterval) ?? 0) }
+        if selection.upbit || selection.premium { delays.append(upbitSeriesCaches["KRW-BTC"]?.remaining(at: now(), lifetime: CatoshiRuntimePolicy.sparklineRefreshInterval) ?? 0) }
+        if selection.premium { delays.append(upbitSeriesCaches["KRW-USDT"]?.remaining(at: now(), lifetime: CatoshiRuntimePolicy.sparklineRefreshInterval) ?? 0) }
+        return delays.min() ?? CatoshiRuntimePolicy.sparklineRefreshInterval
+    }
+
     func fetchReference24HoursAgo() async throws -> Reference24h {
-        let target = Date().addingTimeInterval(-86_400)
+        if let cached = referenceCache, nextReferenceRefreshDelay() > 0 { return cached.value }
+        let target = now().addingTimeInterval(-86_400)
 
         async let binance = fetchBinancePrice(at: target)
         async let upbitBTC = fetchUpbitPrice(market: "KRW-BTC", at: target)
         async let upbitUSDT = fetchUpbitPrice(market: "KRW-USDT", at: target)
 
         let (binancePrice, upbitBTCPrice, upbitUSDTPrice) = try await (binance, upbitBTC, upbitUSDT)
-        return Reference24h(
-            binanceBTCUSDT: binancePrice,
-            upbitBTCKRW: upbitBTCPrice,
-            upbitUSDTKRW: upbitUSDTPrice
-        )
+        try Task.checkCancellation()
+        let result = Reference24h(binanceBTCUSDT: binancePrice, upbitBTCKRW: upbitBTCPrice, upbitUSDTKRW: upbitUSDTPrice)
+        referenceCache = FreshValue(value: result, receivedAt: now())
+        return result
     }
 
-    private func fetchBinance15MinuteSeries() async throws -> [Int64: Double] {
+    private func fetchBinance15MinuteSeries(needed: Bool) async throws -> [Int64: Double] {
+        guard needed else { return [:] }
+        if let cached = binanceSeriesCache, cached.remaining(at: now(), lifetime: CatoshiRuntimePolicy.sparklineRefreshInterval) > 0 { return cached.value }
         var components = URLComponents(string: "https://api.binance.com/api/v3/klines")!
         components.queryItems = [
             URLQueryItem(name: "symbol", value: "BTCUSDT"),
@@ -108,10 +127,15 @@ final class HistoricalReferenceService {
             let bucket = (openNumber.int64Value / 1000 / 900) * 900
             result[bucket] = close
         }
+        try Task.checkCancellation()
+        guard !result.isEmpty else { throw MarketDataError.invalidResponse }
+        binanceSeriesCache = FreshValue(value: result, receivedAt: now())
         return result
     }
 
-    private func fetchUpbit15MinuteSeries(market: String) async throws -> [Int64: Double] {
+    private func fetchUpbit15MinuteSeries(market: String, needed: Bool) async throws -> [Int64: Double] {
+        guard needed else { return [:] }
+        if let cached = upbitSeriesCaches[market], cached.remaining(at: now(), lifetime: CatoshiRuntimePolicy.sparklineRefreshInterval) > 0 { return cached.value }
         var components = URLComponents(string: "https://api.upbit.com/v1/candles/minutes/15")!
         components.queryItems = [
             URLQueryItem(name: "market", value: market),
@@ -128,6 +152,9 @@ final class HistoricalReferenceService {
             let bucket = (Int64(date.timeIntervalSince1970) / 900) * 900
             result[bucket] = candle.tradePrice
         }
+        try Task.checkCancellation()
+        guard !result.isEmpty else { throw MarketDataError.invalidResponse }
+        upbitSeriesCaches[market] = FreshValue(value: result, receivedAt: now())
         return result
     }
 

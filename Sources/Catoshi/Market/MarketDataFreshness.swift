@@ -126,7 +126,18 @@ struct MarketInterpretationInputs {
         self.macro = freshness.macro.status(updatedAt: macro?.updatedAt, source: .macro, now: now).allowsInterpretation
             && macro?.btcDominanceChange24hPP != nil && macro?.usdtDominanceChange24hPP != nil && macro?.total3Change24h != nil
             ? macro : nil
-        self.fast = freshness.fast.status(updatedAt: fast?.updatedAt, source: .fast, now: now).allowsInterpretation ? fast : nil
+        if freshness.fast.status(updatedAt: fast?.updatedAt, source: .fast, now: now).allowsInterpretation, let fast {
+            let oiIsCurrent = fast.openInterestFetchedAt.map {
+                MarketRefreshState.isCurrent($0, maximumAge: CatoshiRuntimePolicy.openInterestMaximumAge, now: now)
+            } ?? false
+            self.fast = FastMarketSnapshot(ethBTC: fast.ethBTC, ethBTCChange24h: fast.ethBTCChange24h,
+                openInterestUSD: oiIsCurrent ? fast.openInterestUSD : nil,
+                openInterestChange1h: oiIsCurrent ? fast.openInterestChange1h : nil,
+                fundingRatePercent: fast.fundingRatePercent, updatedAt: fast.updatedAt,
+                openInterestFetchedAt: fast.openInterestFetchedAt)
+        } else {
+            self.fast = nil
+        }
         if freshness.investor.status(updatedAt: investor?.updatedAt, source: .investor, now: now).allowsInterpretation,
            let investor {
             // ETF flows are daily reports, not live quotes. A successful page fetch cannot
@@ -157,9 +168,16 @@ struct MarketInterpretationInputs {
 
 protocol MarketContextFetching {
     func fetchDomesticExchangeVolumes() async throws -> DomesticVolumeSnapshot
+    func fetchDomesticExchangeVolumes(force: Bool) async throws -> DomesticVolumeSnapshot
     func fetchMacroMarket() async throws -> MacroMarketSnapshot
     func fetchFastMarket() async throws -> FastMarketSnapshot
+    func fetchFastMarket(force: Bool) async throws -> FastMarketSnapshot
     func fetchInvestorMarket() async throws -> InvestorMarketSnapshot
+}
+
+extension MarketContextFetching {
+    func fetchDomesticExchangeVolumes(force: Bool) async throws -> DomesticVolumeSnapshot { try await fetchDomesticExchangeVolumes() }
+    func fetchFastMarket(force: Bool) async throws -> FastMarketSnapshot { try await fetchFastMarket() }
 }
 
 extension MarketContextService: MarketContextFetching {}

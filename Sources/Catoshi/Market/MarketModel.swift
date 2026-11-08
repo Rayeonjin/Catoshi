@@ -1547,51 +1547,48 @@ final class MarketModel: ObservableObject {
                     let reference = try await self.history.fetchReference24HoursAgo()
                     if Task.isCancelled { return }
                     self.apply(reference: reference)
-                    nextDelay = CatoshiRuntimePolicy.referenceRefreshInterval
+                    nextDelay = max(1, await self.history.nextReferenceRefreshDelay())
                 } catch {
                     // A wake/network handoff can briefly fail before Wi-Fi settles. Retry
                     // the important 24h reference sooner without spinning aggressively.
                     nextDelay = CatoshiRuntimePolicy.referenceRetryInterval
                 }
 
-                try? await Task.sleep(for: .seconds(nextDelay))
+                try? await Task.sleep(for: .seconds(nextDelay), tolerance: .seconds(10))
             }
         }
+    }
+
+    private var sparklineSelection: SparklineSelection {
+        SparklineSelection(binance: showMenuBarBinance && showMenuBarBinanceSparkline,
+            upbit: showMenuBarUpbit && showMenuBarUpbitSparkline,
+            premium: showMenuBarPremium && showMenuBarPremiumSparkline)
     }
 
     private func configureSparklineRefresh() {
         sparklineTask?.cancel()
         sparklineTask = nil
-
-        let needsSparkline =
-            (showMenuBarBinance && showMenuBarBinanceSparkline) ||
-            (showMenuBarUpbit && showMenuBarUpbitSparkline) ||
-            (showMenuBarPremium && showMenuBarPremiumSparkline)
-
-        guard needsSparkline, networkAvailable, displayActive else { return }
-        startSparklineRefresh()
-    }
-
-    private func startSparklineRefresh() {
-        sparklineTask?.cancel()
-        sparklineTask = nil
-        guard networkAvailable, displayActive else { return }
+        guard !sparklineSelection.isEmpty, networkAvailable, displayActive else { return }
         sparklineTask = Task { [weak self] in
+            // Coalesce quick settings toggles before starting a download.
+            try? await Task.sleep(for: .milliseconds(250))
+            guard !Task.isCancelled else { return }
             while !Task.isCancelled {
-                guard let self else { return }
-                guard self.networkAvailable else { return }
-
+                guard let self, self.networkAvailable, self.displayActive else { return }
+                let selection = self.sparklineSelection
+                guard !selection.isEmpty else { return }
+                let nextDelay: TimeInterval
                 do {
-                    let series = try await self.history.fetchSparkline24Hours()
+                    let series = try await self.history.fetchSparkline24Hours(selection: selection)
                     if Task.isCancelled { return }
-                    self.binanceSparkline = series.binanceBTCUSDT
-                    self.upbitSparkline = series.upbitBTCKRW
-                    self.premiumSparkline = series.premium
+                    if selection.binance, self.binanceSparkline != series.binanceBTCUSDT { self.binanceSparkline = series.binanceBTCUSDT }
+                    if selection.upbit, self.upbitSparkline != series.upbitBTCKRW { self.upbitSparkline = series.upbitBTCKRW }
+                    if selection.premium, self.premiumSparkline != series.premium { self.premiumSparkline = series.premium }
+                    nextDelay = max(1, await self.history.nextSparklineRefreshDelay(selection: selection))
                 } catch {
-                    // Mini charts are auxiliary. Keep live prices working and retry later.
+                    nextDelay = CatoshiRuntimePolicy.sparklineRefreshInterval
                 }
-
-                try? await Task.sleep(for: .seconds(CatoshiRuntimePolicy.sparklineRefreshInterval))
+                try? await Task.sleep(for: .seconds(nextDelay), tolerance: .seconds(10))
             }
         }
     }
