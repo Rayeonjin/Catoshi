@@ -10,9 +10,9 @@
 
 - macOS 13 이상, Apple Silicon 또는 Intel Mac
 - 인터넷 연결, 약 1 GB 이상의 여유 디스크 공간 권장
-- Apple Command Line Tools 및 Swift 5.9 이상
+- Swift 5.9 이상을 포함한 Command Line Tools
 
-유료 Apple Developer Program, Homebrew, 거래소 API Key는 필요하지 않습니다.
+**전체 Xcode 앱은 필요 없습니다.** Command Line Tools만 있으면 됩니다. 유료 Apple Developer Program, Homebrew, 거래소 API Key도 필요하지 않습니다.
 
 ## 1. 릴리스 소스 ZIP 받기
 
@@ -27,19 +27,23 @@
 
 `⌘ Command + Space`를 누르고 `터미널` 또는 `Terminal`을 검색해 실행합니다.
 
-## 3. Apple 개발 도구 설치
-
-```bash
-xcode-select --install
-```
-
-설치 창에서 설치를 누릅니다. `command line tools are already installed`라는 메시지는 이미 준비됐다는 뜻입니다. 설치 후 새 터미널에서 확인합니다.
+## 3. 빌드 도구 확인
 
 ```bash
 xcrun swift --version
 ```
 
-Swift 버전이 표시되면 다음으로 진행합니다. 보통 전체 Xcode 대신 Command Line Tools만 있으면 됩니다.
+Swift 5.9 이상의 버전이 나오면 4단계로 넘어갑니다. 이미 도구가 준비되어 있으므로 추가로 설치할 필요가 없습니다.
+
+도구를 찾지 못한다는 오류가 나오면 다음 명령으로 **Command Line Tools만** 설치합니다.
+
+```bash
+xcode-select --install
+```
+
+설치 창의 안내를 따라 설치한 뒤 `xcrun swift --version`을 다시 확인합니다. 명령 이름에 `xcode`가 들어가지만 Xcode 앱을 설치하는 것은 아닙니다. `command line tools are already installed`라는 메시지는 이미 설치돼 있다는 뜻입니다. 자세한 내용은 [Apple의 Command Line Tools 설치 안내](https://developer.apple.com/documentation/xcode/installing-the-command-line-tools/)를 참고하세요.
+
+도구가 설치돼 있어도 Swift가 5.9보다 오래된 버전이면 소프트웨어 업데이트에서 Command Line Tools 업데이트를 확인해 주세요.
 
 ## 4. 소스 폴더로 이동
 
@@ -61,7 +65,6 @@ cat VERSION
 ## 5. 설치
 
 ```bash
-chmod +x *.sh
 bash setup.sh
 ```
 
@@ -85,7 +88,6 @@ open ~/Applications/Catoshi.app
 4. 아래 명령을 실행합니다.
 
 ```bash
-chmod +x *.sh
 bash setup.sh
 ```
 

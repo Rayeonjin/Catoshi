@@ -6,6 +6,8 @@
 
 ## Swift를 찾지 못하거나 `xcrun: error`가 표시됨
 
+전체 Xcode 앱을 설치할 필요는 없습니다. 빌드 도구인 **Command Line Tools**를 설치합니다.
+
 ```bash
 xcode-select --install
 ```
@@ -17,16 +19,17 @@ xcrun swift --version
 bash scripts/compatibility_check.sh
 ```
 
-전체 Xcode나 Homebrew를 무조건 추가 설치할 필요는 없습니다. 출력된 실제 도구 경로와 오류를 확인합니다.
+이미 도구가 설치돼 있는데도 오류가 나면, Xcode 앱을 추가로 설치하기보다 위 명령에 표시되는 도구 경로와 오류 메시지를 먼저 확인해 주세요.
 
 ## `Permission denied: ./setup.sh`
 
 압축을 푼 소스 폴더에서 실행합니다.
 
 ```bash
-chmod +x *.sh
 bash setup.sh
 ```
+
+`bash setup.sh`로 실행하면 파일에 실행 권한을 따로 줄 필요가 없습니다.
 
 ## 실행했는데 Dock에 없음
 
