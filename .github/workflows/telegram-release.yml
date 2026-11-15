@@ -1,0 +1,41 @@
+name: Telegram release announcement
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (for example v2.16.17)'
+        required: true
+        type: string
+      preview_only:
+        description: 'Preview without posting to Telegram'
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-release-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  announce:
+    if: github.repository == 'Rayeonjin/Catoshi' && (github.event_name == 'workflow_dispatch' || (github.event.release.draft == false && github.event.release.prerelease == false))
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Prepare and post announcement
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+          PREVIEW_ONLY: ${{ github.event_name == 'workflow_dispatch' && inputs.preview_only && 'true' || 'false' }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python3 scripts/telegram_release.py
