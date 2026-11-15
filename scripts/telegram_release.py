@@ -28,7 +28,8 @@ def message(release, directory=ANNOUNCEMENTS):
     if len(text.encode('utf-16-le')) // 2 > 4096:
         raise ValueError('Announcement exceeds 4096 UTF-16 units; shorten the source file.')
     required = [f'https://github.com/{REPO}/releases/tag/{tag}',
-                'bash setup.sh', 'https://fairy.hada.io/@studio-rayeonjin']
+                'bash setup.sh', 'https://fairy.hada.io/@studio-rayeonjin',
+                'https://buymeacoffee.com/rayeonjin', 'https://ko-fi.com/rayeonjin']
     for value in required:
         # Match the complete URL, not a prefix such as v2.16.1 inside v2.16.17.
         if value.startswith('https://'):

@@ -137,11 +137,11 @@ BTC·김치프리미엄·시장 지표·국내 거래소 수치를 카드로 만
 
 ## 개발 응원하기
 
-Catoshi를 잘 쓰고 계시다면 [Fairy에서 Studio RAYEONJIN의 개발을 응원해 주세요](https://fairy.hada.io/@studio-rayeonjin).
+이 앱을 만드는 Studio RAYEONJIN의 개발 활동을 후원으로 응원하실 수 있습니다.
 
-다른 후원 방법: [Buy Me a Coffee](https://buymeacoffee.com/rayeonjin) · [Ko-fi](https://ko-fi.com/rayeonjin)
+[Fairy](https://fairy.hada.io/@studio-rayeonjin) · [Buy Me a Coffee](https://buymeacoffee.com/rayeonjin) · [Ko-fi](https://ko-fi.com/rayeonjin)
 
-후원은 자발적인 응원이며 사용권, 기능, 업데이트나 지원 순서를 바꾸지 않습니다.
+후원은 특정 앱에 한정되지 않고 스튜디오의 개발 활동 전반에 대한 자발적인 응원입니다. 앱의 사용 조건이나 기능, 업데이트·문의 응답에 후원 여부에 따른 차이를 두지 않습니다.
 
 ## 데이터와 개인정보
 
