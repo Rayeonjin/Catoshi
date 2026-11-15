@@ -9,7 +9,7 @@ final class MarketChecklistTests: XCTestCase {
             let read = make(language, oi: 5, funding: 0.05, premium: 5, etf: -500_000_000, stable: -0.5)
             let prefixes = language == .english
                 ? ["Leverage crowding:", "Korean overheating:", "Weak spot demand:", "Shrinking liquidity:"]
-                : ["레버리지 과밀:", "국내 과열:", "현물 수요 약화:", "유동성 축소:"]
+                : ["레버리지 과밀:", "국내 과열:", "미국 BTC ETF 수요 약화:", "유동성 축소:"]
             XCTAssertEqual(read.checklist.count, 4)
             for (item, prefix) in zip(read.checklist, prefixes) { XCTAssertTrue(item.hasPrefix(prefix)) }
             XCTAssertFalse(read.decision.isEmpty)

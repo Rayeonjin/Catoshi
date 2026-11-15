@@ -75,15 +75,17 @@ struct FastMarketSnapshot {
     let fundingRatePercent: Double?
     let updatedAt: Date
     let openInterestFetchedAt: Date?
+    let openInterestObservedAt: Date?
 
     init(ethBTC: Double, ethBTCChange24h: Double, openInterestUSD: Double?, openInterestChange1h: Double?,
-         fundingRatePercent: Double?, updatedAt: Date, openInterestFetchedAt: Date? = nil) {
+         fundingRatePercent: Double?, updatedAt: Date, openInterestFetchedAt: Date? = nil, openInterestObservedAt: Date? = nil) {
         self.ethBTC = ethBTC
         self.ethBTCChange24h = ethBTCChange24h
         self.openInterestUSD = openInterestUSD
         self.openInterestChange1h = openInterestChange1h
         self.fundingRatePercent = fundingRatePercent
         self.updatedAt = updatedAt
+        self.openInterestObservedAt = openInterestObservedAt
         self.openInterestFetchedAt = openInterestFetchedAt ?? (openInterestUSD != nil ? updatedAt : nil)
     }
 }

@@ -100,8 +100,8 @@ private func makeMarketReadKorean(
                 MarketReadDimension(id: "flow", label: "자금", signal: "대기", explanation: "USDT.D와 전체 시총 데이터를 기다리고 있습니다."),
                 MarketReadDimension(id: "lead", label: "주도권", signal: "대기", explanation: "BTC.D·TOTAL3·ETH/BTC가 모이면 BTC와 알트의 상대강도를 비교합니다."),
                 MarketReadDimension(id: "lev", label: "레버리지", signal: "대기", explanation: "OI와 Funding을 기다리고 있습니다."),
-                MarketReadDimension(id: "spot", label: "현물 수요", signal: "대기", explanation: "ETF 흐름 데이터를 기다리고 있습니다."),
-                MarketReadDimension(id: "trend", label: "중기 추세", signal: "대기", explanation: "7D·30D·200DMA 데이터를 기다리고 있습니다."),
+                MarketReadDimension(id: "spot", label: "미국 BTC ETF 수요", signal: "대기", explanation: "ETF 흐름 데이터를 기다리고 있습니다."),
+                MarketReadDimension(id: "trend", label: "중기 추세", signal: "대기", explanation: "마감 일봉 7D·30D·200DMA 데이터를 기다리고 있습니다."),
                 MarketReadDimension(id: "retail", label: "국내 심리", signal: "대기", explanation: "김치프리미엄 데이터가 들어오면 국내 과열도를 함께 봅니다.")
             ],
             tone: .neutral,
@@ -163,13 +163,13 @@ private func makeMarketReadKorean(
         basisParts.append("ETF 5D " + formatSignedUSDFlow(etf5d))
         if etf5d >= 500_000_000 {
             badges.append("ETF 순유입")
-            summary += " 미국 현물 BTC ETF도 최근 5거래일 누적 순유입이 뚜렷해 BTC 현물 수요 측면의 버팀목이 확인됩니다."
+            summary += " 미국 현물 BTC ETF도 최근 5거래일 누적 순유입이 뚜렷해 BTC 미국 BTC ETF 수요 측면의 버팀목이 확인됩니다."
             if btc == .up {
-                decision += " BTC.D 상승이 ETF 순유입과 함께 나타나면 파생 레버리지에만 의존한 상승보다 현물 수요가 동반되는지에 더 높은 점수를 줄 수 있습니다."
+                decision += " BTC.D 상승이 ETF 순유입과 함께 나타나면 파생 레버리지에만 의존한 상승보다 미국 BTC ETF 수요가 동반되는지에 더 높은 점수를 줄 수 있습니다."
             }
         } else if etf5d <= -500_000_000 {
             badges.append("ETF 순유출")
-            summary += " 반면 미국 현물 BTC ETF는 최근 5거래일 누적 순유출이 커 현물 기관성 수요는 가격 흐름을 충분히 지지하지 못하고 있습니다."
+            summary += " 반면 미국 현물 BTC ETF는 최근 5거래일 누적 순유출이 커 해당 ETF에서 순유출이 관측됩니다. 전체 기관 수요와 같지는 않습니다."
             decision += " 가격이 오르더라도 ETF 순유출이 계속되면 상승의 질이 약한지, OI 증가로 레버리지가 대신 채우고 있는지 함께 확인합니다."
             if tone == .constructive || tone == .neutral { tone = .caution }
         }
@@ -268,43 +268,26 @@ private func makeMarketReadKorean(
         }
     }()
 
-    let leadershipDimension: MarketReadDimension = {
-        if btc == .down, total3 == .up, eth == .up {
-            return MarketReadDimension(id: "lead", label: "주도권", signal: "알트 확산", explanation: "BTC.D는 낮아지고 TOTAL3·ETH/BTC는 함께 오릅니다. BTC에서 알트로 상대강도가 확산되는 가장 깔끔한 조합 중 하나입니다.")
-        }
-        if btc == .down, total3 == .up {
-            return MarketReadDimension(id: "lead", label: "주도권", signal: "알트 시도", explanation: "TOTAL3는 커지지만 ETH/BTC 확인이 부족합니다. 알트 파이는 확대되나 대형 알트까지 확산되는지는 추가 확인이 필요합니다.")
-        }
-        if btc == .up && (total3 == .down || total3 == .flat) {
-            return MarketReadDimension(id: "lead", label: "주도권", signal: "BTC 집중", explanation: "BTC.D가 오르면서 TOTAL3가 강하게 따라오지 못합니다. 시장 내 상대강도가 BTC에 집중되는 구간으로 읽습니다.")
-        }
-        if eth == .up, total3 == .up {
-            return MarketReadDimension(id: "lead", label: "주도권", signal: "ETH/알트", explanation: "ETH/BTC와 TOTAL3가 함께 올라 대형 알트의 상대강도와 시장 폭이 동시에 개선되고 있습니다.")
-        }
-        if btc == .up, total3 == .up {
-            return MarketReadDimension(id: "lead", label: "주도권", signal: "동반 상승", explanation: "BTC·ETH 제외 시총과 BTC 비중이 함께 상승합니다. BTC의 상대 우위와 시총 확대가 겹치지만 BTC 실제 가격 상승이나 개별 종목의 동반 강세를 보장하지 않습니다.")
-        }
-        return MarketReadDimension(id: "lead", label: "주도권", signal: "혼조", explanation: "BTC.D·TOTAL3·ETH/BTC가 한 방향으로 정렬되지 않아 뚜렷한 주도 섹터를 단정하기 어렵습니다.")
-    }()
+    let leadershipDimension = MarketReadRules.leadership(btc: btc, total3: total3, eth: eth, language: .korean)
 
     let spotDemandDimension: MarketReadDimension = {
         guard let fiveDay = investor?.etfFiveDayFlowUSD else {
-            return MarketReadDimension(id: "spot", label: "현물 수요", signal: "데이터 부족", explanation: "미국 현물 BTC ETF 흐름을 기다리고 있습니다. 하루 값보다 최근 5거래일 합계를 중심으로 봅니다.")
+            return MarketReadDimension(id: "spot", label: "미국 BTC ETF 수요", signal: "데이터 부족", explanation: "미국 현물 BTC ETF 흐름을 기다리고 있습니다. 하루 값보다 최근 5거래일 합계를 중심으로 봅니다.")
         }
         let latestText = investor?.etfLatestFlowUSD.map { " · 최근 " + formatSignedUSDFlow($0) } ?? ""
         if fiveDay >= 500_000_000 {
-            return MarketReadDimension(id: "spot", label: "현물 수요", signal: "강한 순유입", explanation: "BTC ETF 5D " + formatSignedUSDFlow(fiveDay) + latestText + "입니다. 지속적인 현물 순유입은 BTC 가격과 BTC.D 상승의 질을 보강하는 요소입니다.")
+            return MarketReadDimension(id: "spot", label: "미국 BTC ETF 수요", signal: "강한 순유입", explanation: "BTC ETF 5D " + formatSignedUSDFlow(fiveDay) + latestText + "입니다. 지속적인 현물 순유입은 BTC 가격과 BTC.D 상승의 질을 보강하는 요소입니다.")
         }
         if fiveDay >= 100_000_000 {
-            return MarketReadDimension(id: "spot", label: "현물 수요", signal: "순유입", explanation: "BTC ETF 5D " + formatSignedUSDFlow(fiveDay) + latestText + "로 현물 수요가 우호적입니다. 하루 변동보다 누적 흐름이 유지되는지 봅니다.")
+            return MarketReadDimension(id: "spot", label: "미국 BTC ETF 수요", signal: "순유입", explanation: "BTC ETF 5D " + formatSignedUSDFlow(fiveDay) + latestText + "로 미국 BTC ETF 수요가 우호적입니다. 하루 변동보다 누적 흐름이 유지되는지 봅니다.")
         }
         if fiveDay <= -500_000_000 {
-            return MarketReadDimension(id: "spot", label: "현물 수요", signal: "강한 순유출", explanation: "BTC ETF 5D " + formatSignedUSDFlow(fiveDay) + latestText + "입니다. 가격이 강해도 ETF 수요가 받치지 못하면 레버리지 의존도가 커지는지 점검합니다.")
+            return MarketReadDimension(id: "spot", label: "미국 BTC ETF 수요", signal: "강한 순유출", explanation: "BTC ETF 5D " + formatSignedUSDFlow(fiveDay) + latestText + "입니다. 가격이 강해도 ETF 수요가 받치지 못하면 레버리지 의존도가 커지는지 점검합니다.")
         }
         if fiveDay <= -100_000_000 {
-            return MarketReadDimension(id: "spot", label: "현물 수요", signal: "순유출", explanation: "BTC ETF 5D " + formatSignedUSDFlow(fiveDay) + latestText + "로 현물 수요가 다소 약합니다. 추세 훼손 여부는 가격·OI와 함께 봅니다.")
+            return MarketReadDimension(id: "spot", label: "미국 BTC ETF 수요", signal: "순유출", explanation: "BTC ETF 5D " + formatSignedUSDFlow(fiveDay) + latestText + "로 미국 BTC ETF 수요가 다소 약합니다. 추세 훼손 여부는 가격·OI와 함께 봅니다.")
         }
-        return MarketReadDimension(id: "spot", label: "현물 수요", signal: "중립", explanation: "BTC ETF 5거래일 누적 흐름이 크지 않아 현재 시장 방향을 강하게 확인하거나 부정하지 않습니다.")
+        return MarketReadDimension(id: "spot", label: "미국 BTC ETF 수요", signal: "중립", explanation: "BTC ETF 5거래일 누적 흐름이 크지 않아 현재 시장 방향을 강하게 확인하거나 부정하지 않습니다.")
     }()
 
     let trendDimension: MarketReadDimension = {
@@ -323,27 +306,7 @@ private func makeMarketReadKorean(
         return MarketReadDimension(id: "trend", label: "중기 추세", signal: "200D 아래", explanation: String(format: "BTC는 200DMA 아래이고 7D %+.1f%% · 30D %+.1f%%입니다. 200DMA 회복 전까지 중기 추세 확인은 보수적으로 봅니다.", ret7, ret30))
     }()
 
-    let leverageDimension: MarketReadDimension = {
-        guard let oi = fast?.openInterestChange1h, let funding = fast?.fundingRatePercent else {
-            return MarketReadDimension(id: "lev", label: "레버리지", signal: "데이터 부족", explanation: "OI와 Funding 데이터를 기다리고 있습니다.")
-        }
-        if oi >= 5.0, funding >= 0.05 {
-            return MarketReadDimension(id: "lev", label: "레버리지", signal: "롱 과열", explanation: String(format: "OI가 1h +%.1f%% 늘고 Funding이 +%.3f%%입니다. 롱 포지션 과밀과 롱 스퀴즈 위험을 같이 봅니다.", oi, funding))
-        }
-        if oi >= 5.0, funding <= -0.05 {
-            return MarketReadDimension(id: "lev", label: "레버리지", signal: "숏 과밀", explanation: String(format: "OI가 1h +%.1f%% 늘고 Funding이 %.3f%%입니다. 숏 쏠림으로 인한 숏 스퀴즈 가능성을 별도 위험으로 봅니다.", oi, funding))
-        }
-        if oi <= -3.0 {
-            return MarketReadDimension(id: "lev", label: "레버리지", signal: "디레버리징", explanation: String(format: "OI가 1h %.1f%% 줄었습니다. 포지션이 정리되는 흐름이라 레버리지 과밀은 완화되는 쪽입니다.", oi))
-        }
-        if abs(funding) >= 0.10 {
-            return MarketReadDimension(id: "lev", label: "레버리지", signal: "편향 큼", explanation: String(format: "Funding이 %+.3f%%로 한쪽 포지션 비용이 높습니다. 방향 신호보다 포지션 쏠림 신호로 읽습니다.", funding))
-        }
-        if oi >= 3.0 {
-            return MarketReadDimension(id: "lev", label: "레버리지", signal: "증가 중", explanation: String(format: "OI가 1h +%.1f%%로 늘고 있습니다. 아직 극단은 아니지만 가격 상승과 같이 빠르게 커지는지 관찰합니다.", oi))
-        }
-        return MarketReadDimension(id: "lev", label: "레버리지", signal: "중립", explanation: String(format: "OI 1h %+.1f%%, Funding %+.3f%%로 현재 기준에서는 극단적인 포지션 쏠림이 뚜렷하지 않습니다.", oi, funding))
-    }()
+    let leverageDimension = MarketReadRules.leverage(oi: fast?.openInterestChange1h, funding: fast?.fundingRatePercent, language: .korean)
 
     let retailDimension: MarketReadDimension = {
         guard let kimchi = premium?.value else {
@@ -364,27 +327,7 @@ private func makeMarketReadKorean(
         return MarketReadDimension(id: "retail", label: "국내 심리", signal: "중립", explanation: String(format: "김프 %+.1f%%로 현재 기준에서는 국내 리테일 과열이 두드러지지 않습니다.", kimchi))
     }()
 
-    let priceDimension: MarketReadDimension = {
-        guard let day = btcChange24h else {
-            return MarketReadDimension(id: "price", label: "가격", signal: "데이터 부족", explanation: "BTC 24h 가격 변화를 기다리고 있습니다.")
-        }
-        if let short = btcChange5m {
-            if day > 0.5, short > 0.10 {
-                return MarketReadDimension(id: "price", label: "가격", signal: "강세 동행", explanation: String(format: "BTC 24h %+.1f%%, 5m %+.2f%%로 큰 방향과 단기 모멘텀이 모두 위를 향합니다.", day, short))
-            }
-            if day > 0.5, short < -0.10 {
-                return MarketReadDimension(id: "price", label: "가격", signal: "상승 중 조정", explanation: String(format: "BTC 24h %+.1f%%지만 5m %+.2f%%입니다. 큰 방향은 강하지만 단기적으로 숨 고르기인지 확인합니다.", day, short))
-            }
-            if day < -0.5, short > 0.10 {
-                return MarketReadDimension(id: "price", label: "가격", signal: "약세 중 반등", explanation: String(format: "BTC 24h %+.1f%%지만 5m %+.2f%%입니다. 추세 전환보다 하락 흐름 안의 단기 반등일 가능성을 먼저 염두에 둡니다.", day, short))
-            }
-            if day < -0.5, short < -0.10 {
-                return MarketReadDimension(id: "price", label: "가격", signal: "약세 동행", explanation: String(format: "BTC 24h %+.1f%%, 5m %+.2f%%로 큰 방향과 단기 모멘텀이 모두 약합니다.", day, short))
-            }
-            return MarketReadDimension(id: "price", label: "가격", signal: "단기 혼조", explanation: String(format: "BTC 24h %+.1f%%, 5m %+.2f%%입니다. 단기 움직임이 큰 시장 맥락을 아직 강화하지는 않습니다.", day, short))
-        }
-        return MarketReadDimension(id: "price", label: "가격", signal: day >= 0 ? "24h 강세" : "24h 약세", explanation: String(format: "BTC 24h %+.1f%%입니다. 단기 5m 기준이 준비되면 큰 방향과 단기 모멘텀의 일치 여부도 같이 봅니다.", day))
-    }()
+    let priceDimension = MarketReadRules.price(day: btcChange24h, short: btcChange5m, language: .korean)
 
     // Regime checklist, risk first, at most four items. Each item names a
     // check, never a buy/sell instruction, and reuses the thresholds the
@@ -398,7 +341,7 @@ private func makeMarketReadKorean(
         checklist.append("국내 과열: 김프만으로 추세를 확신하지 않고, 글로벌 가격·OI·Funding 과열이 같이 나타나는지 확인합니다.")
     }
     if let etf5d = investor?.etfFiveDayFlowUSD, etf5d <= -500_000_000 {
-        checklist.append("현물 수요 약화: 가격이 올라도 ETF 순유출이 계속되면 레버리지가 상승을 대신 채우는지 확인합니다.")
+        checklist.append("미국 BTC ETF 수요 약화: 가격이 올라도 ETF 순유출이 계속되면 레버리지가 상승을 대신 채우는지 확인합니다.")
     }
     if tone == .riskOff {
         checklist.append("방어 국면: USDT.D가 꺾이고 TOTAL3가 회복되기 전까지 위험선호 회복을 성급히 가정하지 않습니다.")
@@ -406,7 +349,7 @@ private func makeMarketReadKorean(
         checklist.append("유동성 축소: 스테이블 공급이 줄어드는 동안 신규 자금 유입으로 읽지 않고 TOTAL3·가격 지속성을 확인합니다.")
     }
     if checklist.isEmpty {
-        checklist.append("정렬 확인: 자금 흐름(USDT.D·스테이블 공급)과 시장 폭(TOTAL3·ETH/BTC)이 같은 방향인지 확인합니다.")
+        checklist.append("정렬 확인: 자금 흐름(USDT.D·스테이블 공급)과 시총 규모·상대강도(TOTAL3·ETH/BTC)이 같은 방향인지 확인합니다.")
     }
 
     return MarketRead(
@@ -444,8 +387,8 @@ private func makeMarketReadEnglish(
             dimensions: [
                 MarketReadDimension(id: "flow", label: "Liquidity", signal: "Waiting", explanation: "Waiting for USDT.D and market-cap data."),
                 MarketReadDimension(id: "lead", label: "Leadership", signal: "Waiting", explanation: "BTC.D, TOTAL3 and ETH/BTC will be used to compare BTC and altcoin relative strength."),
-                MarketReadDimension(id: "spot", label: "Spot demand", signal: "Waiting", explanation: "Waiting for US spot BTC ETF flow data."),
-                MarketReadDimension(id: "trend", label: "Medium trend", signal: "Waiting", explanation: "Waiting for 7D, 30D and 200DMA data."),
+                MarketReadDimension(id: "spot", label: "US BTC ETF flows", signal: "Waiting", explanation: "Waiting for US spot BTC ETF flow data."),
+                MarketReadDimension(id: "trend", label: "Medium trend", signal: "Waiting", explanation: "Waiting for closed-day 7D, 30D and 200DMA data."),
                 MarketReadDimension(id: "lev", label: "Leverage", signal: "Waiting", explanation: "Waiting for open interest and funding data."),
                 MarketReadDimension(id: "retail", label: "Korea retail", signal: "Waiting", explanation: "The kimchi premium will be used as a Korean retail-heat check once available.")
             ],
@@ -602,42 +545,27 @@ private func makeMarketReadEnglish(
         }
     }()
 
-    let leadershipDimension: MarketReadDimension = {
-        if btc == .down, total3 == .up, eth == .up { return MarketReadDimension(id: "lead", label: "Leadership", signal: "Alt breadth", explanation: "BTC.D is falling while TOTAL3 and ETH/BTC rise together, one of the cleaner combinations for relative strength spreading from BTC into alts.") }
-        if btc == .down, total3 == .up { return MarketReadDimension(id: "lead", label: "Leadership", signal: "Alt attempt", explanation: "TOTAL3 is expanding, but ETH/BTC confirmation is missing. The alt market is growing, though breadth into large-cap alts needs confirmation.") }
-        if btc == .up && (total3 == .down || total3 == .flat) { return MarketReadDimension(id: "lead", label: "Leadership", signal: "BTC concentration", explanation: "BTC.D is rising while TOTAL3 is not keeping pace, so relative strength is concentrating in BTC.") }
-        if eth == .up, total3 == .up { return MarketReadDimension(id: "lead", label: "Leadership", signal: "ETH / alts", explanation: "ETH/BTC and TOTAL3 are rising together, improving both large-cap alt relative strength and broader market breadth.") }
-        if btc == .up, total3 == .up { return MarketReadDimension(id: "lead", label: "Leadership", signal: "Broad rise, BTC stronger", explanation: "Ex-BTC/ETH cap and BTC dominance are both rising. This combines relative BTC strength with cap expansion, but does not establish BTC price gains or participation across individual coins.") }
-        return MarketReadDimension(id: "lead", label: "Leadership", signal: "Mixed", explanation: "BTC.D, TOTAL3 and ETH/BTC are not aligned strongly enough to identify a clear leading segment.")
-    }()
+    let leadershipDimension = MarketReadRules.leadership(btc: btc, total3: total3, eth: eth, language: .english)
 
     let spotDemandDimension: MarketReadDimension = {
-        guard let fiveDay = investor?.etfFiveDayFlowUSD else { return MarketReadDimension(id: "spot", label: "Spot demand", signal: "No data", explanation: "Waiting for US spot BTC ETF flows. The five-trading-day sum is more useful than one day.") }
+        guard let fiveDay = investor?.etfFiveDayFlowUSD else { return MarketReadDimension(id: "spot", label: "US BTC ETF flows", signal: "No data", explanation: "Waiting for US spot BTC ETF flows. The five-trading-day sum is more useful than one day.") }
         let latestText = investor?.etfLatestFlowUSD.map { " · latest " + formatSignedUSDFlow($0) } ?? ""
-        if fiveDay >= 500_000_000 { return MarketReadDimension(id: "spot", label: "Spot demand", signal: "Strong inflow", explanation: "BTC ETF 5D " + formatSignedUSDFlow(fiveDay) + latestText + ". Persistent spot inflows strengthen the quality of BTC price and dominance gains.") }
-        if fiveDay >= 100_000_000 { return MarketReadDimension(id: "spot", label: "Spot demand", signal: "Inflow", explanation: "BTC ETF 5D " + formatSignedUSDFlow(fiveDay) + latestText + ". Spot demand is supportive; watch whether the cumulative flow persists.") }
-        if fiveDay <= -500_000_000 { return MarketReadDimension(id: "spot", label: "Spot demand", signal: "Strong outflow", explanation: "BTC ETF 5D " + formatSignedUSDFlow(fiveDay) + latestText + ". If price remains strong without ETF demand, check whether leverage is taking a larger role.") }
-        if fiveDay <= -100_000_000 { return MarketReadDimension(id: "spot", label: "Spot demand", signal: "Outflow", explanation: "BTC ETF 5D " + formatSignedUSDFlow(fiveDay) + latestText + ". Spot demand is somewhat weak; read trend damage together with price and OI.") }
-        return MarketReadDimension(id: "spot", label: "Spot demand", signal: "Neutral", explanation: "The 5-day ETF flow is not large enough to strongly confirm or reject the current market direction.")
+        if fiveDay >= 500_000_000 { return MarketReadDimension(id: "spot", label: "US BTC ETF flows", signal: "Strong inflow", explanation: "BTC ETF 5D " + formatSignedUSDFlow(fiveDay) + latestText + ". Persistent spot inflows strengthen the quality of BTC price and dominance gains.") }
+        if fiveDay >= 100_000_000 { return MarketReadDimension(id: "spot", label: "US BTC ETF flows", signal: "Inflow", explanation: "BTC ETF 5D " + formatSignedUSDFlow(fiveDay) + latestText + ". US BTC ETF flows is supportive; watch whether the cumulative flow persists.") }
+        if fiveDay <= -500_000_000 { return MarketReadDimension(id: "spot", label: "US BTC ETF flows", signal: "Strong outflow", explanation: "BTC ETF 5D " + formatSignedUSDFlow(fiveDay) + latestText + ". If price remains strong without ETF demand, check whether leverage is taking a larger role.") }
+        if fiveDay <= -100_000_000 { return MarketReadDimension(id: "spot", label: "US BTC ETF flows", signal: "Outflow", explanation: "BTC ETF 5D " + formatSignedUSDFlow(fiveDay) + latestText + ". US BTC ETF flows is somewhat weak; read trend damage together with price and OI.") }
+        return MarketReadDimension(id: "spot", label: "US BTC ETF flows", signal: "Neutral", explanation: "The 5-day ETF flow is not large enough to strongly confirm or reject the current market direction.")
     }()
 
     let trendDimension: MarketReadDimension = {
-        guard let ret7 = investor?.btcReturn7d, let ret30 = investor?.btcReturn30d, let above = investor?.btcAbove200DMA else { return MarketReadDimension(id: "trend", label: "Medium trend", signal: "No data", explanation: "Waiting for BTC 7D, 30D and 200DMA data.") }
+        guard let ret7 = investor?.btcReturn7d, let ret30 = investor?.btcReturn30d, let above = investor?.btcAbove200DMA else { return MarketReadDimension(id: "trend", label: "Medium trend", signal: "No data", explanation: "Waiting for BTC closed-day 7D, 30D and 200DMA data.") }
         if above, ret30 >= 5.0 { return MarketReadDimension(id: "trend", label: "Medium trend", signal: "Uptrend structure", explanation: String(format: "BTC 7D %+.1f%% · 30D %+.1f%% and above the 200DMA. Short-term weakness should first be tested as a pullback within an uptrend.", ret7, ret30)) }
         if !above, ret30 <= -5.0 { return MarketReadDimension(id: "trend", label: "Medium trend", signal: "Weak structure", explanation: String(format: "BTC 7D %+.1f%% · 30D %+.1f%% and below the 200DMA. Short-term strength should first be treated as a rebound inside a weaker regime.", ret7, ret30)) }
         if above { return MarketReadDimension(id: "trend", label: "Medium trend", signal: "Above 200D", explanation: String(format: "BTC is above the 200DMA, but 7D %+.1f%% · 30D %+.1f%% momentum is mixed. Watch 200DMA support and the 30D direction together.", ret7, ret30)) }
         return MarketReadDimension(id: "trend", label: "Medium trend", signal: "Below 200D", explanation: String(format: "BTC is below the 200DMA with 7D %+.1f%% · 30D %+.1f%%. Medium-term confirmation remains conservative until the 200DMA is recovered.", ret7, ret30))
     }()
 
-    let leverageDimension: MarketReadDimension = {
-        guard let oi = fast?.openInterestChange1h, let funding = fast?.fundingRatePercent else { return MarketReadDimension(id: "lev", label: "Leverage", signal: "No data", explanation: "Waiting for OI and funding data.") }
-        if oi >= 5.0, funding >= 0.05 { return MarketReadDimension(id: "lev", label: "Leverage", signal: "Crowded longs", explanation: String(format: "OI is up 1h +%.1f%% and funding is +%.3f%%. Long crowding raises long-squeeze risk.", oi, funding)) }
-        if oi >= 5.0, funding <= -0.05 { return MarketReadDimension(id: "lev", label: "Leverage", signal: "Crowded shorts", explanation: String(format: "OI is up 1h +%.1f%% and funding is %.3f%%. Crowded shorts raise short-squeeze risk.", oi, funding)) }
-        if oi <= -3.0 { return MarketReadDimension(id: "lev", label: "Leverage", signal: "Deleveraging", explanation: String(format: "OI is down %.1f%% over 1h. Positions are being reduced, easing leverage crowding.", oi)) }
-        if abs(funding) >= 0.10 { return MarketReadDimension(id: "lev", label: "Leverage", signal: "Large bias", explanation: String(format: "Funding is %+.3f%%, making one side of positioning expensive. Read it as crowding, not direction.", funding)) }
-        if oi >= 3.0 { return MarketReadDimension(id: "lev", label: "Leverage", signal: "Building", explanation: String(format: "OI is up 1h +%.1f%%. It is not extreme yet, but watch whether it accelerates alongside price.", oi)) }
-        return MarketReadDimension(id: "lev", label: "Leverage", signal: "Neutral", explanation: String(format: "OI 1h %+.1f%% and funding %+.3f%% do not currently show extreme positioning.", oi, funding))
-    }()
+    let leverageDimension = MarketReadRules.leverage(oi: fast?.openInterestChange1h, funding: fast?.fundingRatePercent, language: .english)
 
     let retailDimension: MarketReadDimension = {
         guard let kimchi = premium?.value else { return MarketReadDimension(id: "retail", label: "Korea retail", signal: "No data", explanation: "Waiting for kimchi-premium data.") }
@@ -648,17 +576,7 @@ private func makeMarketReadEnglish(
         return MarketReadDimension(id: "retail", label: "Korea retail", signal: "Neutral", explanation: String(format: "Kimchi premium %+.1f%% does not currently indicate pronounced Korean retail overheating.", kimchi))
     }()
 
-    let priceDimension: MarketReadDimension = {
-        guard let day = btcChange24h else { return MarketReadDimension(id: "price", label: "Price", signal: "No data", explanation: "Waiting for BTC 24h price change.") }
-        if let short = btcChange5m {
-            if day > 0.5, short > 0.10 { return MarketReadDimension(id: "price", label: "Price", signal: "Bullish alignment", explanation: String(format: "BTC 24h %+.1f%% and 5m %+.2f%%: both the larger move and short-term momentum point higher.", day, short)) }
-            if day > 0.5, short < -0.10 { return MarketReadDimension(id: "price", label: "Price", signal: "Pullback in up move", explanation: String(format: "BTC 24h %+.1f%% but 5m %+.2f%%. The larger direction is strong while short-term momentum is cooling.", day, short)) }
-            if day < -0.5, short > 0.10 { return MarketReadDimension(id: "price", label: "Price", signal: "Bounce in weak move", explanation: String(format: "BTC 24h %+.1f%% but 5m %+.2f%%. Treat this first as a short bounce inside a weaker move rather than a confirmed trend reversal.", day, short)) }
-            if day < -0.5, short < -0.10 { return MarketReadDimension(id: "price", label: "Price", signal: "Bearish alignment", explanation: String(format: "BTC 24h %+.1f%% and 5m %+.2f%%: both the larger move and short-term momentum are weak.", day, short)) }
-            return MarketReadDimension(id: "price", label: "Price", signal: "Short-term mixed", explanation: String(format: "BTC 24h %+.1f%% and 5m %+.2f%%. The short-term move is not yet reinforcing the broader context.", day, short))
-        }
-        return MarketReadDimension(id: "price", label: "Price", signal: day >= 0 ? "24h bullish" : "24h bearish", explanation: String(format: "BTC 24h %+.1f%%. Once the 5m reference is ready, compare short-term momentum with the larger direction.", day))
-    }()
+    let priceDimension = MarketReadRules.price(day: btcChange24h, short: btcChange5m, language: .english)
 
     // Regime checklist, risk first, at most four items. Each item names a
     // check, never a buy/sell instruction, and reuses the thresholds the

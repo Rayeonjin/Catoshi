@@ -312,7 +312,7 @@ private struct MarketContextContent: View {
                 }
             }
 
-            MarketMetricGroup(title: language.pick("현물 수요 · 중기 추세", "Spot Demand · Medium Trend")) {
+            MarketMetricGroup(title: language.pick("미국 BTC ETF 수요 · 중기 추세", "US BTC ETF Flows · Medium Trend")) {
                 LazyVGrid(columns: detailColumns, spacing: 7) {
                     MarketLearningMetricCard(
                         title: "BTC ETF",
@@ -338,7 +338,7 @@ private struct MarketContextContent: View {
             MarketMetricGroup(title: language.pick("레버리지", "Leverage")) {
                 LazyVGrid(columns: detailColumns, spacing: 7) {
                     MarketLearningMetricCard(
-                        title: "BTC OI",
+                        title: "BTC OI · USD / Δ 수량",
                         value: context.fast?.openInterestUSD.map(formatUSDMarketCap) ?? "--",
                         changeText: context.fast?.openInterestChange1h.map { "1h " + signedMetric($0) + "%" } ?? "1h --",
                         statusText: openInterestStatus,
@@ -417,11 +417,11 @@ private struct MarketContextContent: View {
 
     private var etfSignal: String {
         guard let flow = inputs.investor?.etfFiveDayFlowUSD else { return language.pick("데이터 대기", "Waiting for data") }
-        if flow >= 500_000_000 { return language.pick("강한 현물 순유입", "Strong spot inflow") }
-        if flow >= 100_000_000 { return language.pick("현물 순유입", "Spot inflow") }
-        if flow <= -500_000_000 { return language.pick("강한 현물 순유출", "Strong spot outflow") }
-        if flow <= -100_000_000 { return language.pick("현물 순유출", "Spot outflow") }
-        return language.pick("현물 수급 중립", "Spot flow neutral")
+        if flow >= 500_000_000 { return language.pick("강한 ETF 순유입", "Strong spot inflow") }
+        if flow >= 100_000_000 { return language.pick("ETF 순유입", "Spot inflow") }
+        if flow <= -500_000_000 { return language.pick("강한 ETF 순유출", "Strong spot outflow") }
+        if flow <= -100_000_000 { return language.pick("ETF 순유출", "Spot outflow") }
+        return language.pick("ETF 흐름 중립", "Spot flow neutral")
     }
 
     private var btcTrendSignal: String {
@@ -437,8 +437,8 @@ private struct MarketContextContent: View {
 
     private var openInterestSignal: String {
         guard let change = inputs.fast?.openInterestChange1h else { return language.pick("데이터 대기", "Waiting for data") }
-        if change >= 5.0 { return language.pick("레버리지 빠르게 확대", "Leverage building quickly") }
-        if change >= 3.0 { return language.pick("레버리지 확대", "Leverage building") }
+        if change >= 5.0 { return language.pick("OI 수량 빠르게 증가", "OI quantity rising quickly") }
+        if change >= 3.0 { return language.pick("OI 수량 증가", "OI quantity rising") }
         if change <= -3.0 { return language.pick("디레버리징", "Deleveraging") }
         return language.pick("큰 변화 없음", "No major change")
     }
@@ -515,7 +515,7 @@ private struct MarketContextContent: View {
             title: "BTC ETF",
             what: language.pick("미국 현물 Bitcoin ETF의 순유입·순유출입니다. 화면의 해석은 최근 5거래일 누적을 더 중요하게 봅니다.", "Net flows into and out of US spot Bitcoin ETFs. The app gives more weight to the latest five trading days."),
             positiveLabel: language.pick("순유입이면", "With net inflows"),
-            positive: language.pick("기관성 현물 수요가 BTC 가격을 지지하는 방향입니다. 며칠간 지속되는지가 중요합니다.", "Institutional spot demand is supporting BTC. Persistence over several sessions matters more than one day."),
+            positive: language.pick("기관성 미국 BTC ETF 수요가 BTC 가격을 지지하는 방향입니다. 며칠간 지속되는지가 중요합니다.", "Institutional spot demand is supporting BTC. Persistence over several sessions matters more than one day."),
             negativeLabel: language.pick("순유출이면", "With net outflows"),
             negative: language.pick("현물 기관성 수요가 약해지는 방향입니다. 가격이 강하다면 레버리지가 대신 커지고 있는지도 확인합니다.", "Institutional spot demand is weakening. If price remains strong, check whether leverage is filling the gap."),
             caution: language.pick("미국 거래일 중 최신 일간 값은 잠정치일 수 있으며 ETF 흐름 하나로 가격 방향을 확정할 수 없습니다.", "The latest US trading-day figure may be provisional, and ETF flows alone do not determine price direction.")
@@ -536,7 +536,7 @@ private struct MarketContextContent: View {
 
     private var openInterestExplanation: MarketMetricExplanation {
         MarketMetricExplanation(
-            title: "BTC OI",
+            title: "BTC OI · USD / Δ 수량",
             what: language.pick("Binance BTCUSDT 무기한 선물의 미결제약정 규모입니다. 열려 있는 레버리지 포지션의 크기를 보여줍니다.", "Binance BTCUSDT perpetual open interest, showing the size of outstanding leveraged positions."),
             positiveLabel: language.pick("빠르게 늘면", "When it rises quickly"),
             positive: language.pick("시장에 레버리지가 쌓이는 구간일 수 있습니다. 가격과 같은 방향으로 과도하게 늘면 청산 위험도 커질 수 있습니다.", "Leverage may be building. If it expands too quickly with price, liquidation risk can also rise."),

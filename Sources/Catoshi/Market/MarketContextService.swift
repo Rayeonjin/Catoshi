@@ -86,6 +86,7 @@ actor MarketContextService {
         var total3Change: Double?
 
         if let coinMarkets,
+           MarketCalculationRules.synchronized(coinMarkets.map { $0.lastUpdated }, reference: Date(timeIntervalSince1970: TimeInterval(global.data.updatedAt))),
            let btc = coinMarkets.first(where: { $0.id == "bitcoin" }),
            let eth = coinMarkets.first(where: { $0.id == "ethereum" }),
            let usdt = coinMarkets.first(where: { $0.id == "tether" }),
@@ -148,7 +149,7 @@ actor MarketContextService {
             openInterestChange1h: oi?.value.change1h,
             fundingRatePercent: funding,
             updatedAt: now(),
-            openInterestFetchedAt: oi?.receivedAt
+            openInterestFetchedAt: oi?.receivedAt, openInterestObservedAt: oi?.value.observedAt
         )
     }
 
@@ -239,10 +240,7 @@ actor MarketContextService {
                 guard let rows = try JSONSerialization.jsonObject(with: data) as? [[Any]] else {
                     throw MarketContextError.invalidResponse
                 }
-                let closes = rows.compactMap { row -> Double? in
-                    guard row.count > 4 else { return nil }
-                    return numericValue(row[4])
-                }
+                let closes = MarketCalculationRules.closedDailyPrices(rows, now: now())
                 guard closes.count >= 200,
                       let latest = closes.last, latest > 0 else {
                     throw MarketContextError.invalidResponse
@@ -291,14 +289,17 @@ actor MarketContextService {
             let dateText = cells[0].trimmingCharacters(in: .whitespacesAndNewlines)
             guard let date = formatter.date(from: dateText) else { continue }
             let fundCells = cells.dropFirst().dropLast()
-            let numericFundCount = fundCells.compactMap(parseFarsideMillions).count
+            let fundValues = fundCells.compactMap(parseFarsideMillions)
+            guard fundValues.count == fundCells.count, !fundValues.isEmpty else { continue }
             guard let totalMillions = parseFarsideMillions(cells.last ?? "") else { continue }
             // Ignore placeholder rows where every fund is still '-' and Total is mechanically 0.0.
-            if numericFundCount == 0 && abs(totalMillions) < 0.000_001 { continue }
+            guard totalMillions.isFinite, abs(fundValues.reduce(0, +) - totalMillions) <= Double(fundValues.count + 1) * 0.11 else { continue }
             points.append((date, totalMillions * 1_000_000))
         }
 
+        points = MarketCalculationRules.uniqueDailyFlows(points, now: now())
         points.sort { $0.date < $1.date }
+        guard points.count >= 5, let newest = points.last, newest.date.timeIntervalSince(points[points.count - 5].date) <= 10 * 86_400 else { throw MarketContextError.noData }
         guard let latest = points.last else { throw MarketContextError.noData }
         let fiveDay = points.suffix(5).reduce(0.0) { $0 + $1.totalUSD }
         return ETFFlowSummary(latestUSD: latest.totalUSD, fiveDayUSD: fiveDay, date: latest.date)
@@ -412,18 +413,12 @@ actor MarketContextService {
         let rows = try JSONDecoder().decode([BinanceOpenInterestPoint].self, from: data)
             .sorted { $0.timestamp < $1.timestamp }
         guard let latest = rows.last,
-              let current = Double(latest.sumOpenInterestValue) else {
+              let current = Double(latest.sumOpenInterestValue), current.isFinite, current > 0,
+              let change = MarketCalculationRules.openInterestChange(
+                rows.map { ($0.timestamp, Double($0.sumOpenInterest) ?? .nan) }, now: now()) else {
             throw MarketContextError.invalidResponse
         }
-
-        var change: Double?
-        if rows.count >= 2,
-           let previous = Double(rows[rows.count - 2].sumOpenInterestValue),
-           previous > 0 {
-            change = (current / previous - 1) * 100
-        }
-
-        return OpenInterestSummary(currentUSD: current, change1h: change)
+        return OpenInterestSummary(observedAt: Date(timeIntervalSince1970: Double(latest.timestamp) / 1000), currentUSD: current, change1h: change)
     }
 
     private func fetchFundingRatePercent() async throws -> Double {
@@ -648,6 +643,7 @@ private struct BitcoinTrendSummary {
 }
 
 private struct OpenInterestSummary {
+    let observedAt: Date
     let currentUSD: Double
     let change1h: Double?
 }
@@ -729,11 +725,13 @@ private struct CoinGeckoCoinMarket: Decodable {
     let id: String
     let marketCap: Double?
     let marketCapChange24h: Double?
+    let lastUpdated: String?
 
     enum CodingKeys: String, CodingKey {
         case id
         case marketCap = "market_cap"
         case marketCapChange24h = "market_cap_change_24h"
+        case lastUpdated = "last_updated"
     }
 }
 
@@ -751,6 +749,7 @@ private struct BinanceSpot24hTicker: Decodable {
 }
 
 private struct BinanceOpenInterestPoint: Decodable {
+    let sumOpenInterest: String
     let sumOpenInterestValue: String
     let timestamp: Int64
 }

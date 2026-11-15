@@ -12,7 +12,7 @@ macOS 13 이상에서 사용할 수 있으며, 소스를 받아 자신의 Mac에
 
 A cat in your Mac menu bar, with Bitcoin prices and Korean market data. Source-available for non-commercial personal use.
 
-**v2.16.16 · 정식 출시** · [변경 이력](docs/CHANGELOG.md) · [설치 가이드](docs/BUILDING.md)
+**v2.16.17 · 정식 출시** · [변경 이력](docs/CHANGELOG.md) · [설치 가이드](docs/BUILDING.md)
 
 ## 할 수 있는 것
 

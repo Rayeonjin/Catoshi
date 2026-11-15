@@ -131,11 +131,12 @@ struct MarketInterpretationInputs {
             let oiIsCurrent = fast.openInterestFetchedAt.map {
                 MarketRefreshState.isCurrent($0, maximumAge: CatoshiRuntimePolicy.openInterestMaximumAge, now: now)
             } ?? false
+            let observationIsCurrent = fast.openInterestObservedAt.map { MarketRefreshState.isCurrent($0, maximumAge: 75 * 60, now: now) } ?? true
             self.fast = FastMarketSnapshot(ethBTC: fast.ethBTC, ethBTCChange24h: fast.ethBTCChange24h,
-                openInterestUSD: oiIsCurrent ? fast.openInterestUSD : nil,
-                openInterestChange1h: oiIsCurrent ? fast.openInterestChange1h : nil,
+                openInterestUSD: oiIsCurrent && observationIsCurrent ? fast.openInterestUSD : nil,
+                openInterestChange1h: oiIsCurrent && observationIsCurrent ? fast.openInterestChange1h : nil,
                 fundingRatePercent: fast.fundingRatePercent, updatedAt: fast.updatedAt,
-                openInterestFetchedAt: fast.openInterestFetchedAt)
+                openInterestFetchedAt: fast.openInterestFetchedAt, openInterestObservedAt: fast.openInterestObservedAt)
         } else {
             self.fast = nil
         }

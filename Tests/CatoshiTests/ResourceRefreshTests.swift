@@ -215,7 +215,7 @@ private final class ResourceFixture {
         switch path {
         case "/api/v3/ticker/24hr": body = #"{"lastPrice":"0.04","priceChangePercent":"1"}"#
         case "/fapi/v1/premiumIndex": body = #"{"lastFundingRate":"0.0001"}"#
-        case "/futures/data/openInterestHist": body = #"[{"sumOpenInterestValue":"1000000","timestamp":1000},{"sumOpenInterestValue":"1100000","timestamp":2000}]"#
+        case "/futures/data/openInterestHist": body = #"[{"sumOpenInterest":"100","sumOpenInterestValue":"1000000","timestamp":1999996400000},{"sumOpenInterest":"110","sumOpenInterestValue":"1100000","timestamp":2000000000000}]"#
         case "/v1/ticker/all": body = #"[{"acc_trade_price_24h":1000}]"#
         case "/public/ticker/ALL_KRW": body = #"{"status":"0000","data":{}}"#
         case "/public/v2/ticker_new/KRW": body = #"{"result":"success","tickers":[]}"#
