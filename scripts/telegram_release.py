@@ -2,6 +2,7 @@
 """Post a public stable release. No third-party packages; never log bot API URLs."""
 import json
 import os
+from pathlib import Path
 import re
 import sys
 import urllib.error
@@ -9,33 +10,34 @@ import urllib.parse
 import urllib.request
 
 REPO = 'Rayeonjin/Catoshi'
+ANNOUNCEMENTS = Path(__file__).resolve().parents[1] / 'announcements' / 'telegram'
 
 
-def message(release):
+def message(release, directory=ANNOUNCEMENTS):
     if release.get('draft') or release.get('prerelease'):
         raise ValueError('Only published stable releases can be announced.')
     tag = release.get('tag_name', '')
     if not re.fullmatch(r'v\d+\.\d+\.\d+', tag):
         raise ValueError('Expected a stable vX.Y.Z tag.')
-    title = release.get('name') or f'Catoshi {tag}'
-    body = release.get('body') or '변경 사항은 릴리스 페이지에서 확인하세요.'
-    # Plain text avoids Telegram Markdown injection and malformed formatting.
-    body = re.sub(r'\[([^\]]+)\]\((https?://[^)]+)\)', r'\1 (\2)', body)
-    body = re.sub(r'^#{1,6}\s+', '', body, flags=re.M).replace('**', '').replace('`', '')
-    # Leave room for fixed installation and support links, including UTF-16 emoji units.
-    def clip(text, limit):
-        raw = text.encode('utf-16-le')
-        if len(raw) <= limit * 2:
-            return text
-        return raw[:limit * 2].decode('utf-16-le', errors='ignore').rstrip() + '\n… 자세한 내용은 릴리스에서 확인하세요.'
-    return (
-        '🐈 ' + clip(title, 180) + '\n\n' + clip(body.strip(), 2600)
-        + f'\n\n📦 설치·변경 사항\nhttps://github.com/{REPO}/releases/tag/{tag}'
-        + '\n\nSource code (zip)을 새 폴더에 풀고 bash setup.sh를 실행하세요.'
-        + '\n직접 빌드 방식 · Command Line Tools 필요 · 전체 Xcode 앱 불필요'
-        + '\n비상업적 개인 사용만 허용합니다.'
-        + '\n\n☕ 개발 응원하기\nhttps://fairy.hada.io/@catoshi'
-    )
+    path = directory / (tag + '.txt')
+    if not path.is_file():
+        raise ValueError(f'Missing announcement: announcements/telegram/{tag}.txt')
+    text = path.read_text(encoding='utf-8').rstrip('\r\n')
+    if not text.strip():
+        raise ValueError('Announcement is empty.')
+    if len(text.encode('utf-16-le')) // 2 > 4096:
+        raise ValueError('Announcement exceeds 4096 UTF-16 units; shorten the source file.')
+    required = [f'https://github.com/{REPO}/releases/tag/{tag}',
+                'bash setup.sh', 'https://fairy.hada.io/@catoshi']
+    for value in required:
+        # Match the complete URL, not a prefix such as v2.16.1 inside v2.16.17.
+        if value.startswith('https://'):
+            found = value in re.findall(r'https://[^\s]+', text)
+        else:
+            found = value in text
+        if not found:
+            raise ValueError(f'Announcement must include: {value}')
+    return text
 
 
 def main():
