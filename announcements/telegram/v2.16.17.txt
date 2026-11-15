@@ -16,5 +16,5 @@ Source code (zip)을 새 폴더에 풀고 bash setup.sh를 실행하세요.
 직접 빌드 방식이며 Command Line Tools가 필요합니다. 전체 Xcode 앱은 필요하지 않습니다.
 비상업적 개인 사용만 허용합니다.
 
-☕ Catoshi가 유용했다면 개발을 응원해 주세요.
-https://fairy.hada.io/@catoshi
+☕ Catoshi가 유용했다면 Studio RAYEONJIN의 개발을 응원해 주세요.
+https://fairy.hada.io/@studio-rayeonjin

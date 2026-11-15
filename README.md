@@ -137,7 +137,7 @@ BTC·김치프리미엄·시장 지표·국내 거래소 수치를 카드로 만
 
 ## 개발 응원하기
 
-Catoshi를 잘 쓰고 계시다면 [Fairy에서 개발을 응원해 주세요](https://fairy.hada.io/@catoshi).
+Catoshi를 잘 쓰고 계시다면 [Fairy에서 Studio RAYEONJIN의 개발을 응원해 주세요](https://fairy.hada.io/@studio-rayeonjin).
 
 다른 후원 방법: [Buy Me a Coffee](https://buymeacoffee.com/rayeonjin) · [Ko-fi](https://ko-fi.com/rayeonjin)
 
