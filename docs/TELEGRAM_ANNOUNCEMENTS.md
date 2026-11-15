@@ -38,3 +38,7 @@ Actions에서 실패 원인을 확인합니다. 토큰·대상 Secret 누락, �
 - [Telegram 봇 생성 안내](https://core.telegram.org/bots/tutorial#obtain-your-bot-token)
 - [Telegram sendMessage](https://core.telegram.org/bots/api#sendmessage)
 - [GitHub Secrets 안내](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets)
+
+## 게시한 공지 수정
+
+원고 파일을 수정해 main에 반영한 뒤, 기존 전송 로그의 `Message ID`를 확인합니다. Run workflow에서 같은 버전 태그와 `edit_message_id`에 해당 ID를 입력하고 preview_only를 해제하면 기존 메시지를 수정합니다. ID를 비워 두면 새 메시지를 게시하므로 반드시 확인하세요. 수정 실패 시 새 메시지로 대체 전송하지 않습니다. 로그의 `Telegram announcement edited. Message ID:`로 수정 성공을 확인합니다.

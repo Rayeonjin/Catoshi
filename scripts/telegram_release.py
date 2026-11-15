@@ -41,6 +41,16 @@ def message(release, directory=ANNOUNCEMENTS):
     return text
 
 
+def telegram_request(chat, text, edit_id=''):
+    payload = {'chat_id': chat, 'text': text, 'link_preview_options': {'is_disabled': True}}
+    if edit_id:
+        if not re.fullmatch(r'[1-9][0-9]*', edit_id):
+            raise ValueError('EDIT_MESSAGE_ID must be a positive integer; refusing to post.')
+        payload['message_id'] = int(edit_id)
+        return 'editMessageText', payload
+    return 'sendMessage', payload
+
+
 def main():
     tag = os.environ.get('RELEASE_TAG', '')
     if not re.fullmatch(r'v\d+\.\d+\.\d+', tag):
@@ -64,15 +74,17 @@ def main():
     chat = os.environ.get('TELEGRAM_CHAT_ID', '')
     if not token or not chat:
         raise ValueError('Configure TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID repository secrets first.')
-    payload = json.dumps({'chat_id': chat, 'text': text, 'link_preview_options': {'is_disabled': True}}).encode()
-    request = urllib.request.Request(f'https://api.telegram.org/bot{token}/sendMessage', data=payload,
+    method, data = telegram_request(chat, text, os.environ.get('EDIT_MESSAGE_ID', ''))
+    payload = json.dumps(data).encode()
+    request = urllib.request.Request(f'https://api.telegram.org/bot{token}/{method}', data=payload,
                                      headers={'Content-Type': 'application/json'}, method='POST')
     # Never automatically retry a POST: timeout may occur after successful delivery.
     with urllib.request.urlopen(request, timeout=20) as response:
         result = json.load(response)
     if result.get('ok') is not True:
         raise ValueError('Telegram rejected the request. Check bot channel permissions and secrets.')
-    print('Telegram announcement delivered. Message ID:', result['result']['message_id'])
+    verb = 'edited' if method == 'editMessageText' else 'delivered'
+    print(f'Telegram announcement {verb}. Message ID:', result['result']['message_id'])
 
 
 if __name__ == '__main__':
