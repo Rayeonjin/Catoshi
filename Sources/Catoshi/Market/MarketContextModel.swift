@@ -136,6 +136,7 @@ struct MarketRead {
     let dimensions: [MarketReadDimension]
     let tone: MarketReadTone
     let badges: [String]
+    var overview: MarketOverviewRead? = nil
 }
 
 

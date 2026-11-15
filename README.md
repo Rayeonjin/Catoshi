@@ -12,7 +12,7 @@ macOS 13 이상에서 사용할 수 있으며, 소스를 받아 자신의 Mac에
 
 A cat in your Mac menu bar, with Bitcoin prices and Korean market data. Source-available for non-commercial personal use.
 
-**v2.16.15 · 정식 출시** · [변경 이력](docs/CHANGELOG.md) · [설치 가이드](docs/BUILDING.md)
+**v2.16.16 · 정식 출시** · [변경 이력](docs/CHANGELOG.md) · [설치 가이드](docs/BUILDING.md)
 
 ## 할 수 있는 것
 
@@ -105,7 +105,7 @@ BTC 가격, 24시간 변동, 김치프리미엄을 메뉴바에서 볼 수 있�
 
 ### 시장 흐름
 
-BTC.D·TOTAL3·ETH/BTC·OI·Funding 등을 함께 살펴봅니다. 한눈에·상세 보기에서 현재 해석, 확인할 항목, 해석이 바뀌는 신호와 수치 근거를 볼 수 있습니다.
+BTC.D·TOTAL3·ETH/BTC·OI·Funding 등을 함께 살펴봅니다. ‘한눈에’에서는 시장 확대를 지지하는 근거와 엇갈리는 신호를 실제 수치와 함께 보여 줍니다. 현물 수요·중기 추세·국내 심리·가격을 따로 읽고, 빠진 데이터와 다음에 확인할 변화도 확인할 수 있습니다.
 
 ![시장 흐름 — 가상 데이터](docs/images/market.png)
 
@@ -173,6 +173,7 @@ Catoshi는 **비상업적 개인 사용만 허용하는 소스 공개(source-ava
 
 - [설치·업데이트·복구](docs/BUILDING.md)
 - [문제 해결](docs/TROUBLESHOOTING.md)
+- [시장 해석 기준](docs/MARKET_INTERPRETATION.md)
 - [리소스·갱신 정책](docs/RESOURCE_USAGE.md)
 - [데이터 출처](docs/DATA_SOURCES.md)
 - [보안](.github/SECURITY.md)

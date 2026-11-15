@@ -86,48 +86,6 @@ private struct MarketContextContent: View {
         read.dimensions.first { $0.id == id }
     }
 
-    private var conciseSummary: String {
-        let summary = read.summary.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let range = summary.range(of: ". ") else { return summary }
-        return String(summary[..<range.lowerBound]) + "."
-    }
-
-    private var riskAppetiteSignal: String {
-        guard let macro = inputs.macro else { return language.pick("대기", "Waiting") }
-        let usdt = metricTrend(macro.usdtDominanceChange24hPP, threshold: 0.10)
-        let total3 = metricTrend(macro.total3Change24h, threshold: 0.75)
-
-        if usdt == .down, total3 == .up {
-            return language.pick("개선", "Improving")
-        }
-        if usdt == .up, total3 == .down {
-            return language.pick("약함", "Weak")
-        }
-        if usdt == .up {
-            return language.pick("방어적", "Defensive")
-        }
-        if total3 == .up {
-            return language.pick("확산 시도", "Broadening")
-        }
-        return language.pick("혼조", "Mixed")
-    }
-
-    private var riskAppetiteExplanation: String {
-        guard let macro = inputs.macro else {
-            return language.pick("USDT.D와 TOTAL3 데이터가 모이면 위험선호의 방향을 요약합니다.", "Risk appetite is summarized once USDT.D and TOTAL3 are available.")
-        }
-        let usdt = metricTrend(macro.usdtDominanceChange24hPP, threshold: 0.10)
-        let total3 = metricTrend(macro.total3Change24h, threshold: 0.75)
-
-        if usdt == .down, total3 == .up {
-            return language.pick("USDT 비중은 낮아지고 BTC·ETH 제외 시장은 커져 위험자산으로의 확산과 부합합니다.", "USDT share is falling while the ex-BTC/ETH market expands, which is consistent with broader risk deployment.")
-        }
-        if usdt == .up, total3 == .down {
-            return language.pick("USDT 비중이 높아지고 알트 시장 규모는 줄어 방어적 흐름과 부합합니다.", "USDT share is rising while the alt market contracts, which is consistent with defensive positioning.")
-        }
-        return language.pick("USDT.D와 TOTAL3가 한 방향으로 충분히 정렬되지 않았습니다.", "USDT.D and TOTAL3 are not aligned strongly enough in one direction.")
-    }
-
     var body: some View { marketContent }
 
     private var marketContent: some View {
@@ -244,38 +202,22 @@ private struct MarketContextContent: View {
         VStack(alignment: .leading, spacing: 8) {
             MarketPulseSummaryCard(
                 title: read.title,
-                summary: conciseSummary,
+                summary: read.overview?.summary ?? read.summary,
                 alignment: read.alignment,
                 tone: read.tone,
                 palette: palette
             )
 
-            MarketReadGuidanceCard(
-                read: read,
-                language: language
-            )
+            if let overview = read.overview {
+                MarketOverviewEvidenceCard(overview: overview, read: read, language: language)
+            } else {
+                MarketReadGuidanceCard(read: read, language: language)
+            }
 
             LazyVGrid(columns: overviewColumns, spacing: 7) {
-                MarketOverviewSignalCard(
-                    title: language.pick("시장 구조", "Market Structure"),
-                    signal: dimension("lead")?.signal ?? language.pick("대기", "Waiting"),
-                    explanation: dimension("lead")?.explanation ?? ""
-                )
-                MarketOverviewSignalCard(
-                    title: language.pick("유동성", "Liquidity"),
-                    signal: dimension("flow")?.signal ?? language.pick("대기", "Waiting"),
-                    explanation: dimension("flow")?.explanation ?? ""
-                )
-                MarketOverviewSignalCard(
-                    title: language.pick("위험 선호", "Risk Appetite"),
-                    signal: riskAppetiteSignal,
-                    explanation: riskAppetiteExplanation
-                )
-                MarketOverviewSignalCard(
-                    title: language.pick("레버리지", "Leverage"),
-                    signal: dimension("lev")?.signal ?? language.pick("대기", "Waiting"),
-                    explanation: dimension("lev")?.explanation ?? ""
-                )
+                ForEach(read.dimensions) { item in
+                    MarketOverviewSignalCard(title: item.label, signal: item.signal, explanation: item.explanation)
+                }
             }
 
             HStack(spacing: 5) {
@@ -725,6 +667,63 @@ private struct MarketReadGuidanceCard: View {
     }
 }
 
+private struct MarketOverviewEvidenceCard: View {
+    let overview: MarketOverviewRead
+    let read: MarketRead
+    let language: AppLanguage
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            evidence(language.pick("확대·수요를 지지하는 근거", "Expansion / demand evidence"), items: overview.supporting,
+                empty: language.pick("현재 기준을 넘는 확대·수요 근거가 없습니다.", "No expansion or demand evidence crosses the current thresholds."))
+            evidence(language.pick("엇갈리는 신호·주의할 점", "Conflicts / cautions"), items: overview.cautions,
+                empty: language.pick("현재 수신한 지표에서 뚜렷한 경고 기준은 감지되지 않았습니다. 위험이 없다는 뜻은 아닙니다.", "No warning thresholds detected in available data; this does not mean risk is absent."))
+            Text(overview.coverage)
+                .font(.system(size: CatoshiType.secondary))
+                .catoshiText(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            Divider().opacity(0.35)
+            Text(language.pick("다음에 확인할 변화", "What to watch next"))
+                .font(.system(size: CatoshiType.secondary, weight: .semibold))
+            Text(read.reversal)
+                .font(.system(size: CatoshiType.body))
+                .fixedSize(horizontal: false, vertical: true)
+            DisclosureGroup(language.pick("해석 기준·확인 순서", "Reading rules / checklist")) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(read.decision)
+                    Text(read.basis).catoshiText(.secondary)
+                    ForEach(read.checklist.indices, id: \.self) { index in
+                        Text("\(index + 1). \(read.checklist[index])")
+                    }
+                    Text(overview.limitations).catoshiText(.secondary)
+                }
+                .font(.system(size: CatoshiType.secondary))
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 5)
+            }
+            .font(.system(size: CatoshiType.secondary))
+        }
+        .padding(9)
+        .background(Color(nsColor: .controlBackgroundColor).opacity(0.50))
+        .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+    }
+
+    private func evidence(_ title: String, items: [String], empty: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title).font(.system(size: CatoshiType.secondary, weight: .semibold))
+            if items.isEmpty {
+                Text(empty).catoshiText(.secondary)
+            } else {
+                ForEach(items.indices, id: \.self) { index in
+                    Text("• " + items[index])
+                }
+            }
+        }
+        .font(.system(size: CatoshiType.body))
+        .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
 private struct MarketOverviewSignalCard: View {
     let title: String
     let signal: String
@@ -743,7 +742,6 @@ private struct MarketOverviewSignalCard: View {
                 Text(explanation)
                     .font(.system(size: CatoshiType.secondary))
                     .catoshiText(.secondary)
-                    .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }

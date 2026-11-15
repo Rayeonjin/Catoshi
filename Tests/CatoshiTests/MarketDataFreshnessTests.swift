@@ -70,8 +70,8 @@ final class MarketDataFreshnessTests: XCTestCase {
         let macro = MacroMarketSnapshot(btcDominance: 59, btcDominanceChange24hPP: 1.85,
             usdtDominance: 6.3, usdtDominanceChange24hPP: 0.17, total3USD: 850_000_000_000,
             total3Change24h: -9.7, updatedAt: now)
-        for (language, expected) in [(AppLanguage.korean, "알트 약세·방어 우위"),
-                                     (.english, "Alt weakness / defensive positioning")] {
+        for (language, expected) in [(AppLanguage.korean, "시장 위축·BTC 상대 방어"),
+                                     (.english, "Contraction, BTC relatively resilient")] {
             let read = makeMarketRead(macro: macro, fast: nil, investor: nil,
                 freshness: MarketContextFreshness(), premium: nil, btcChange24h: nil,
                 btcChange5m: nil, language: language, now: now)
@@ -156,7 +156,7 @@ final class MarketDataFreshnessTests: XCTestCase {
                 XCTAssertTrue(CatoshiShareSummary.fits(summary, format: format))
                 XCTAssertTrue(summary.hasSuffix("."))
                 XCTAssertFalse(summary.contains("…"))
-                XCTAssertTrue(summary.hasPrefix(language.pick("BTC의 상대 점유율은", "BTC dominance is rising")))
+                XCTAssertTrue(summary.hasPrefix(language.pick("USDT 비중은 낮아지고", "USDT share is falling")))
                 for badge in read.badges { XCTAssertTrue(summary.contains(badge)) }
                 XCTAssertTrue(summary.contains(language.pick("롱 과열", "Crowded longs")))
                 XCTAssertTrue(summary.contains(language.pick("국내 FOMO", "Korea FOMO")))

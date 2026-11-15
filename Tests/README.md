@@ -24,6 +24,8 @@ The checks use a deterministic clock and mocked service responses. They cover so
 
 These regressions do not establish live provider availability, market-data accuracy, UI layout, or Intel compatibility; those require separate verification.
 
+Market overview checks enumerate all 27 core dominance/cap combinations in Korean and English, distinguish small changes from conflicting signals, retain simultaneous supportive and risk evidence, avoid confusing relative BTC strength with price gains, and exclude failed, stale, invalid and independently expired OI/ETF inputs. These rule-based checks do not validate forecasting performance.
+
 ## Installation recovery
 
 ```sh

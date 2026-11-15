@@ -124,7 +124,8 @@ struct MarketInterpretationInputs {
     init(macro: MacroMarketSnapshot?, fast: FastMarketSnapshot?, investor: InvestorMarketSnapshot?,
          freshness: MarketContextFreshness, now: Date) {
         self.macro = freshness.macro.status(updatedAt: macro?.updatedAt, source: .macro, now: now).allowsInterpretation
-            && macro?.btcDominanceChange24hPP != nil && macro?.usdtDominanceChange24hPP != nil && macro?.total3Change24h != nil
+            && macro?.btcDominanceChange24hPP?.isFinite == true
+            && macro?.usdtDominanceChange24hPP?.isFinite == true && macro?.total3Change24h?.isFinite == true
             ? macro : nil
         if freshness.fast.status(updatedAt: fast?.updatedAt, source: .fast, now: now).allowsInterpretation, let fast {
             let oiIsCurrent = fast.openInterestFetchedAt.map {

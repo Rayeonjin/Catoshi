@@ -80,7 +80,7 @@ func signedMetric(_ value: Double) -> String {
 }
 
 func metricTrend(_ value: Double?, threshold: Double) -> MarketTrend {
-    guard let value else { return .unknown }
+    guard let value, value.isFinite else { return .unknown }
     if value > threshold { return .up }
     if value < -threshold { return .down }
     return .flat

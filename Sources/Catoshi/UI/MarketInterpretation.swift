@@ -27,7 +27,7 @@ func makeMarketRead(
     let inputs = MarketInterpretationInputs(macro: macro, fast: fast, investor: investor, freshness: freshness, now: now)
     let priceIsCurrent = btcUpdatedAt.map { MarketRefreshState.isCurrent($0, maximumAge: 180, now: now) } ?? false
     let premiumIsCurrent = premiumUpdatedAt.map { MarketRefreshState.isCurrent($0, maximumAge: 180, now: now) } ?? false
-    let result: MarketRead
+    var result: MarketRead
     if language == .english {
         result = makeMarketReadEnglish(
             macro: inputs.macro, fast: inputs.fast, investor: inputs.investor,
@@ -42,6 +42,11 @@ func makeMarketRead(
             btcChange24h: priceIsCurrent ? btcChange24h : nil,
             btcChange5m: priceIsCurrent ? btcChange5m : nil
         )
+    }
+    if let macro = inputs.macro {
+        result.overview = MarketOverviewRead(macro: macro, fast: inputs.fast, investor: inputs.investor,
+            premium: premiumIsCurrent ? premium : nil,
+            btcChange24h: priceIsCurrent ? btcChange24h : nil, language: language)
     }
     if inputs.macro == nil, macro != nil || freshness.macro.lastFailureAt != nil {
         return MarketRead(
@@ -69,7 +74,8 @@ func makeMarketRead(
         decision: result.decision, checklist: result.checklist, reversal: result.reversal, basis: result.basis,
         alignment: result.alignment + language.pick(" · 일부 지표 제외", " · Some inputs excluded"),
         dimensions: result.dimensions, tone: result.tone,
-        badges: result.badges + [language.pick("일부 지표 제외", "Some inputs excluded")]
+        badges: result.badges + [language.pick("일부 지표 제외", "Some inputs excluded")],
+        overview: result.overview
     )
 }
 
@@ -108,63 +114,20 @@ private func makeMarketReadKorean(
     let total3 = metricTrend(macro.total3Change24h, threshold: 0.75)
     let eth = metricTrend(fast?.ethBTCChange24h, threshold: 0.50)
 
-    var title = "혼조·전환 구간"
-    var summary = "주도권과 유동성 신호가 한 방향으로 정렬되지 않았습니다. 이런 구간에서는 BTC.D 한 가지보다 USDT.D와 TOTAL3가 어느 쪽으로 정렬되는지 기다리는 편이 해석 오류를 줄입니다."
-    var decision = "방향을 강하게 단정하기보다 자금 흐름과 시장 폭이 같은 방향으로 확인되는지를 우선 보세요. 혼조 구간에서는 짧은 가격 움직임을 큰 추세 전환으로 확대 해석하기 쉽습니다."
-    var reversal = "USDT.D와 TOTAL3가 반대 방향이 아니라 같은 시장 국면을 가리키기 시작하는지 확인합니다."
-    var tone: MarketReadTone = .neutral
+    let regime = MarketRegimeRead(macro: macro, fast: fast, btcChange24h: btcChange24h, language: .korean)
+    let title = regime.title
+    var summary = regime.summary
+    var decision = regime.decision
+    var reversal = regime.reversal
+    var tone = regime.tone
     var badges: [String] = []
-    var aligned = 1
-    let alignmentTotal = 4
-
-    if btc == .down, usdt == .down, total3 == .up {
-        title = "알트 순환 강화"
-        summary = "BTC 비중과 USDT 비중이 함께 낮아지는 가운데 BTC·ETH 제외 시총이 커지고 있습니다. BTC가 약해서 도미넌스만 떨어지는 장면보다, 실제로 알트 시장의 파이가 커지는 쪽에 더 가까운 조합입니다."
-        decision = "알트 강세를 판단할 때 BTC.D 하락 자체보다 TOTAL3 확대를 더 중요하게 봅니다. ETH/BTC까지 상승하면 대형 알트의 상대강도도 확인되는 만큼 순환의 질이 한 단계 좋아집니다."
-        reversal = "USDT.D가 다시 상승하거나 TOTAL3가 하락 전환하면 알트 순환 해석이 약해집니다. ETH/BTC까지 꺾이면 확산 동력이 약해졌는지 재확인합니다."
-        tone = .constructive
-        badges.append("알트 순환")
-        aligned = 3 + (eth == .up ? 1 : 0)
-    } else if btc == .up, usdt == .down {
-        title = "BTC 주도 위험선호"
-        summary = "BTC의 상대 점유율은 높아지고 USDT 비중은 낮아지고 있습니다. 시장 내 위험자산 배치가 늘어나는 가운데 그 수요가 우선 BTC에 집중되는 흐름과 부합합니다."
-        decision = "현재는 '시장 전체가 강하다'보다 'BTC가 시장을 주도한다'는 해석에 무게를 둡니다. TOTAL3와 ETH/BTC가 뒤따라 오르기 전에는 BTC 강세를 알트 전반의 강세로 확대 해석하지 않는 편이 안전합니다."
-        reversal = "BTC.D가 꺾이고 TOTAL3·ETH/BTC가 동시에 상승하면 BTC 집중에서 알트 순환으로 주도권이 이동하는지 다시 봅니다."
-        tone = .constructive
-        badges.append("BTC 주도")
-        aligned = 2 + ((total3 == .flat || total3 == .down) ? 1 : 0) + ((eth == .flat || eth == .down) ? 1 : 0)
-    } else if (btc == .up || btc == .flat), usdt == .up, total3 == .down {
-        title = "알트 약세·방어 우위"
-        summary = "USDT 비중이 높아지고 BTC·ETH 제외 시총이 줄고 있습니다. BTC 비중은 유지되거나 높아져 알트보다 상대적으로 강하지만, 시장 전반의 위험선호가 회복됐다는 뜻은 아닙니다."
-        decision = "BTC 비중 상승만으로 강세를 판단하지 말고, 알트 시장 규모의 축소와 스테이블 비중 확대를 함께 확인합니다."
-        reversal = "USDT.D가 하락하고 TOTAL3가 회복되면 방어적 흐름이 완화되는지 다시 봅니다."
-        tone = .caution
-        badges.append("방어 우위")
-        aligned = 2 + (btc == .up ? 1 : 0) + (eth == .down ? 1 : 0)
-    } else if btc == .down, usdt == .up {
-        title = "위험회피·자금 이탈"
-        summary = "BTC 비중은 낮아지는데 USDT 비중은 높아지고 있습니다. 건강한 알트 순환보다는 코인 시장의 위험 노출을 줄이고 스테이블코인 비중을 높이는 방어적 흐름에 더 가깝습니다."
-        decision = "BTC.D 하락을 알트 강세로 오해하기 쉬운 조합입니다. 이때는 TOTAL3가 실제로 성장하는지보다 감소하는지를 먼저 확인하고, USDT.D가 꺾이기 전까지 위험선호 회복을 성급히 가정하지 않는 편이 좋습니다."
-        reversal = "USDT.D가 하락 전환하고 TOTAL3가 회복되면 자금 이탈 압력이 완화되는 첫 신호로 볼 수 있습니다."
-        tone = .riskOff
-        badges.append("위험회피")
-        aligned = 2 + (total3 == .down ? 1 : 0) + (eth == .down ? 1 : 0)
-    } else if btc == .flat, eth == .up, total3 == .up {
-        title = "ETH 주도 순환"
-        summary = "BTC 점유율은 큰 변화가 없지만 ETH/BTC와 TOTAL3가 함께 상승하고 있습니다. BTC에서 대형 알트로 상대강도가 확산되면서 알트 시장의 체력도 같이 좋아지는 흐름입니다."
-        decision = "ETH/BTC 상승만 볼 때보다 TOTAL3 상승이 동반되는지를 중요하게 봅니다. 둘이 함께 오르면 특정 종목의 상대강세가 아니라 시장 폭이 넓어지는 순환으로 해석할 근거가 더 많아집니다."
-        reversal = "ETH/BTC 상승이 멈추거나 TOTAL3가 하락하면 대형 알트 주도 순환이 약해지는지 확인합니다. USDT.D 상승까지 겹치면 방어적으로 다시 읽어야 합니다."
-        tone = .constructive
-        badges.append("ETH 주도")
-        aligned = 3 + (usdt != .up ? 1 : 0)
-    }
 
     var basisParts = [
-        "BTC.D \(btc.rawValue)",
-        "USDT.D \(usdt.rawValue)",
-        "TOTAL3 \(total3.rawValue)"
+        String(format: "BTC.D 24h %+.2f%%p", macro.btcDominanceChange24hPP ?? 0),
+        String(format: "USDT.D 24h %+.2f%%p", macro.usdtDominanceChange24hPP ?? 0),
+        String(format: "TOTAL3* 24h %+.2f%%", macro.total3Change24h ?? 0)
     ]
-    if eth != .unknown { basisParts.append("ETH/BTC \(eth.rawValue)") }
+    if eth != .unknown { basisParts.append(String(format: "ETH/BTC 24h %+.2f%%", fast?.ethBTCChange24h ?? 0)) }
 
     if let btcChange24h {
         basisParts.append(String(format: "BTC 24h %+.1f%%", btcChange24h))
@@ -282,7 +245,7 @@ private func makeMarketReadKorean(
     let flowDimension: MarketReadDimension = {
         let stable = investor?.stablecoinSupplyChange7d
         if usdt == .down, let stable, stable >= 0.50 {
-            return MarketReadDimension(id: "flow", label: "자금", signal: "유입 확인", explanation: String(format: "USDT.D는 하락하고 USDT+USDC 공급은 7D %+.2f%% 늘었습니다. 비중 하락과 실제 공급 확대가 함께 나타나 위험자산으로 이동 가능한 유동성 기반이 넓어지는 조합입니다.", stable))
+            return MarketReadDimension(id: "flow", label: "자금", signal: "공급 확대·비중↓", explanation: String(format: "USDT.D는 하락하고 USDT+USDC 공급은 7D %+.2f%% 늘었습니다. 비중 하락과 실제 공급 확대가 함께 나타나 위험자산으로 이동 가능한 유동성 기반이 넓어지는 조합입니다.", stable))
         }
         if usdt == .down, let stable, stable <= -0.50 {
             return MarketReadDimension(id: "flow", label: "자금", signal: "착시 경계", explanation: String(format: "USDT.D는 하락하지만 USDT+USDC 공급도 7D %+.2f%% 줄었습니다. 신규 자금 유입보다 전체 시총 상승의 분모 효과일 수 있어 TOTAL3와 가격 지속성을 더 중요하게 봅니다.", stable))
@@ -319,7 +282,7 @@ private func makeMarketReadKorean(
             return MarketReadDimension(id: "lead", label: "주도권", signal: "ETH/알트", explanation: "ETH/BTC와 TOTAL3가 함께 올라 대형 알트의 상대강도와 시장 폭이 동시에 개선되고 있습니다.")
         }
         if btc == .up, total3 == .up {
-            return MarketReadDimension(id: "lead", label: "주도권", signal: "동반 상승", explanation: "BTC와 알트 시총이 같이 강한데 BTC 비중도 상승합니다. 시장은 넓어지지만 BTC가 상대적으로 더 강한 흐름입니다.")
+            return MarketReadDimension(id: "lead", label: "주도권", signal: "동반 상승", explanation: "BTC·ETH 제외 시총과 BTC 비중이 함께 상승합니다. BTC의 상대 우위와 시총 확대가 겹치지만 BTC 실제 가격 상승이나 개별 종목의 동반 강세를 보장하지 않습니다.")
         }
         return MarketReadDimension(id: "lead", label: "주도권", signal: "혼조", explanation: "BTC.D·TOTAL3·ETH/BTC가 한 방향으로 정렬되지 않아 뚜렷한 주도 섹터를 단정하기 어렵습니다.")
     }()
@@ -453,7 +416,7 @@ private func makeMarketReadKorean(
         checklist: Array(checklist.prefix(4)),
         reversal: reversal,
         basis: basisParts.joined(separator: " · "),
-        alignment: title == "혼조·전환 구간" ? "신호 혼조" : "핵심 정렬 \(min(aligned, alignmentTotal))/\(alignmentTotal)",
+        alignment: regime.alignment,
         dimensions: [flowDimension, leadershipDimension, spotDemandDimension, trendDimension, leverageDimension, retailDimension, priceDimension],
         tone: tone,
         badges: badges
@@ -496,63 +459,20 @@ private func makeMarketReadEnglish(
     let total3 = metricTrend(macro.total3Change24h, threshold: 0.75)
     let eth = metricTrend(fast?.ethBTCChange24h, threshold: 0.50)
 
-    var title = "Mixed / transition regime"
-    var summary = "Leadership and liquidity are not aligned in one direction. In this regime, waiting for USDT.D and TOTAL3 to confirm each other is usually more informative than reading BTC.D alone."
-    var decision = "Avoid forcing a directional conclusion. Prioritize whether liquidity and market breadth begin confirming the same regime; short price moves are easy to overread during mixed conditions."
-    var reversal = "Watch for USDT.D and TOTAL3 to stop contradicting each other and begin pointing to the same market regime."
-    var tone: MarketReadTone = .neutral
+    let regime = MarketRegimeRead(macro: macro, fast: fast, btcChange24h: btcChange24h, language: .english)
+    let title = regime.title
+    var summary = regime.summary
+    var decision = regime.decision
+    var reversal = regime.reversal
+    var tone = regime.tone
     var badges: [String] = []
-    var aligned = 1
-    let alignmentTotal = 4
-
-    if btc == .down, usdt == .down, total3 == .up {
-        title = "Alt rotation strengthening"
-        summary = "BTC share and USDT share are both falling while market cap outside BTC and ETH is expanding. This is closer to genuine alt-market expansion than a simple drop in BTC dominance caused by BTC weakness."
-        decision = "For an alt-strength read, TOTAL3 expansion matters more than BTC.D falling by itself. If ETH/BTC also rises, large-cap alt relative strength confirms that the rotation is broadening."
-        reversal = "A renewed rise in USDT.D or a downturn in TOTAL3 weakens the alt-rotation read. If ETH/BTC also rolls over, re-check whether breadth is fading."
-        tone = .constructive
-        badges.append("Alt rotation")
-        aligned = 3 + (eth == .up ? 1 : 0)
-    } else if btc == .up, usdt == .down {
-        title = "BTC-led risk-on"
-        summary = "BTC dominance is rising while USDT dominance is falling. That combination fits a market where risk exposure is increasing but demand is concentrating in BTC first."
-        decision = "Read this as BTC leadership rather than broad market strength. Until TOTAL3 and ETH/BTC follow higher, do not automatically extend BTC strength to the whole altcoin market."
-        reversal = "If BTC.D turns down while TOTAL3 and ETH/BTC rise together, re-check for a leadership shift from BTC concentration toward alt rotation."
-        tone = .constructive
-        badges.append("BTC-led")
-        aligned = 2 + ((total3 == .flat || total3 == .down) ? 1 : 0) + ((eth == .flat || eth == .down) ? 1 : 0)
-    } else if (btc == .up || btc == .flat), usdt == .up, total3 == .down {
-        title = "Alt weakness / defensive positioning"
-        summary = "USDT dominance is rising while market cap outside BTC and ETH is shrinking. BTC share is steady or higher, showing relative resilience against alts, but this does not establish broad risk-on demand."
-        decision = "Read BTC dominance alongside alt-market contraction and the rising stablecoin share rather than treating BTC's relative strength as broad market strength."
-        reversal = "If USDT dominance turns lower and TOTAL3 recovers, re-check whether defensive positioning is easing."
-        tone = .caution
-        badges.append("Defensive positioning")
-        aligned = 2 + (btc == .up ? 1 : 0) + (eth == .down ? 1 : 0)
-    } else if btc == .down, usdt == .up {
-        title = "Risk-off / capital retreat"
-        summary = "BTC share is falling while USDT share is rising. That looks more like reduced crypto risk exposure and defensive stablecoin positioning than healthy altcoin rotation."
-        decision = "This is a common setup in which falling BTC.D can be mistaken for alt strength. Check whether TOTAL3 is actually shrinking, and avoid assuming risk appetite has recovered until USDT.D turns lower."
-        reversal = "A turn lower in USDT.D together with a recovery in TOTAL3 would be an early sign that capital-retreat pressure is easing."
-        tone = .riskOff
-        badges.append("Risk-off")
-        aligned = 2 + (total3 == .down ? 1 : 0) + (eth == .down ? 1 : 0)
-    } else if btc == .flat, eth == .up, total3 == .up {
-        title = "ETH-led rotation"
-        summary = "BTC dominance is broadly stable while ETH/BTC and TOTAL3 rise together. Relative strength is spreading from BTC toward large-cap alts while the broader alt market also expands."
-        decision = "ETH/BTC is more meaningful when TOTAL3 confirms it. When both rise, the move is more likely to reflect broadening market participation rather than isolated ETH strength."
-        reversal = "If ETH/BTC stalls or TOTAL3 turns down, re-check whether the rotation is weakening. A concurrent rise in USDT.D would make the read more defensive."
-        tone = .constructive
-        badges.append("ETH-led")
-        aligned = 3 + (usdt != .up ? 1 : 0)
-    }
 
     var basisParts = [
-        "BTC.D \(btc.rawValue)",
-        "USDT.D \(usdt.rawValue)",
-        "TOTAL3 \(total3.rawValue)"
+        String(format: "BTC.D 24h %+.2f%%p", macro.btcDominanceChange24hPP ?? 0),
+        String(format: "USDT.D 24h %+.2f%%p", macro.usdtDominanceChange24hPP ?? 0),
+        String(format: "TOTAL3* 24h %+.2f%%", macro.total3Change24h ?? 0)
     ]
-    if eth != .unknown { basisParts.append("ETH/BTC \(eth.rawValue)") }
+    if eth != .unknown { basisParts.append(String(format: "ETH/BTC 24h %+.2f%%", fast?.ethBTCChange24h ?? 0)) }
     if let btcChange24h { basisParts.append(String(format: "BTC 24h %+.1f%%", btcChange24h)) }
     if let btcChange5m { basisParts.append(String(format: "5m %+.2f%%", btcChange5m)) }
 
@@ -663,7 +583,7 @@ private func makeMarketReadEnglish(
     let flowDimension: MarketReadDimension = {
         let stable = investor?.stablecoinSupplyChange7d
         if usdt == .down, let stable, stable >= 0.50 {
-            return MarketReadDimension(id: "flow", label: "Liquidity", signal: "Inflow confirmed", explanation: String(format: "USDT.D is falling while USDT+USDC supply is up %+.2f%% over 7D. Falling stablecoin share and expanding supply together provide stronger evidence of deployable risk liquidity.", stable))
+            return MarketReadDimension(id: "flow", label: "Liquidity", signal: "Supply up, share down", explanation: String(format: "USDT.D is falling while USDT+USDC supply is up %+.2f%% over 7D. Falling stablecoin share and expanding supply together provide stronger evidence of deployable risk liquidity.", stable))
         }
         if usdt == .down, let stable, stable <= -0.50 {
             return MarketReadDimension(id: "flow", label: "Liquidity", signal: "Denominator risk", explanation: String(format: "USDT.D is falling, but USDT+USDC supply is also down %+.2f%% over 7D. The dominance move may reflect rising asset prices rather than fresh capital, so TOTAL3 and price persistence matter more.", stable))
@@ -687,7 +607,7 @@ private func makeMarketReadEnglish(
         if btc == .down, total3 == .up { return MarketReadDimension(id: "lead", label: "Leadership", signal: "Alt attempt", explanation: "TOTAL3 is expanding, but ETH/BTC confirmation is missing. The alt market is growing, though breadth into large-cap alts needs confirmation.") }
         if btc == .up && (total3 == .down || total3 == .flat) { return MarketReadDimension(id: "lead", label: "Leadership", signal: "BTC concentration", explanation: "BTC.D is rising while TOTAL3 is not keeping pace, so relative strength is concentrating in BTC.") }
         if eth == .up, total3 == .up { return MarketReadDimension(id: "lead", label: "Leadership", signal: "ETH / alts", explanation: "ETH/BTC and TOTAL3 are rising together, improving both large-cap alt relative strength and broader market breadth.") }
-        if btc == .up, total3 == .up { return MarketReadDimension(id: "lead", label: "Leadership", signal: "Broad rise, BTC stronger", explanation: "BTC and alt market cap are both rising, but BTC dominance is also increasing. The market is broadening while BTC remains relatively stronger.") }
+        if btc == .up, total3 == .up { return MarketReadDimension(id: "lead", label: "Leadership", signal: "Broad rise, BTC stronger", explanation: "Ex-BTC/ETH cap and BTC dominance are both rising. This combines relative BTC strength with cap expansion, but does not establish BTC price gains or participation across individual coins.") }
         return MarketReadDimension(id: "lead", label: "Leadership", signal: "Mixed", explanation: "BTC.D, TOTAL3 and ETH/BTC are not aligned strongly enough to identify a clear leading segment.")
     }()
 
@@ -770,7 +690,7 @@ private func makeMarketReadEnglish(
         checklist: Array(checklist.prefix(4)),
         reversal: reversal,
         basis: basisParts.joined(separator: " · "),
-        alignment: title == "Mixed / transition regime" ? "Signals mixed" : "Core alignment \(min(aligned, alignmentTotal))/\(alignmentTotal)",
+        alignment: regime.alignment,
         dimensions: [flowDimension, leadershipDimension, spotDemandDimension, trendDimension, leverageDimension, retailDimension, priceDimension],
         tone: tone,
         badges: badges
